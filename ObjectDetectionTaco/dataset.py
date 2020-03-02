@@ -30,6 +30,7 @@ class Dataset:
         # next free img_id and ann_id
         self.img_id = len(self.imgs)
         self.ann_id = len(self.anns)
+        self.last_cat = 0
 
         self.file_ids = dict()
         self.ids_file = dict()
@@ -310,7 +311,8 @@ class Dataset:
     def augment_image(self, image, super_class, masks, ann_cats, nr_augmentations):
         hooks_masks = ia.HooksImages(activator=self.activator_masks)
         seq = self.create_pipeline()
-        print("Start aug...")
+        imgs_info = []
+        anns_info = []
         for i in range(nr_augmentations):
             seq_det = seq.to_deterministic()
             image_augmented = seq_det.augment_image(image)
@@ -318,13 +320,13 @@ class Dataset:
                 masks.astype(np.uint8), hooks=hooks_masks)
             # TODO: remove hardcoded path initialize new folder in constructor
             image_info, ann_info = self.get_coco_info(
-                "./data/test", image_augmented, mask_augmented, ann_cats)
-            self.imgs.append(image_info)
-            self.anns.append(ann_info)
+                self.dataset_path + "/augm", image_augmented, mask_augmented, ann_cats)
+            imgs_info.append(image_info)
+            anns_info.extend(ann_info)
 
             path = self.dataset_path + "/" + image_info['file_name']
             cv2.imwrite(path, image_augmented)
-        print("End aug...")
+        return imgs_info, anns_info
 
     def count_super_cat(self, nr_super_cats):
         cat_ids_2_supercat_ids = self.cat_to_super_cat()
@@ -348,6 +350,16 @@ class Dataset:
             image_list += self.coco.getImgIds(catIds=cat)
 
         return list(set(image_list))
+
+    def restore_session(self):
+        log_file = self.dataset_path + "/last_save.log"
+        if exists(log_file):
+            with open(log_file) as fs:
+                last_line = fs.readlines()[-1]
+                last_line = last_line.strip("\n").split(",")
+                self.last_cat = last_line[0]
+                self.img_id = last_line[1]
+                self.ann_id = last_line[2]
 
     def generate_filepath(self, generated_dir, img_id):
         if not exists(generated_dir):
@@ -382,30 +394,53 @@ class Dataset:
         super_cat_histogram = self.count_super_cat(nr_super_cats)
         max_cnt = np.max(super_cat_histogram)
 
-        for i in range(1):
+        for i in range(self.last_cat, nr_super_cats):
+            img_info = []
+            ann_info = []
             image_ids = self.imgs_per_cats(super_to_cat[i])
-            for j, im_id in enumerate(image_ids):
-                init_augm, remainder = self.compute_nr_aug(
-                    super_cat_histogram[i], max_cnt)
-                masks, ann_cats = self.load_masks(im_id)
-                image = self.load_image(im_id)
-                print("Supercategory: {}/{} Current image: {}/{} augs: {}, image: {}"
-                      .format(i + 1, nr_super_cats, j + 1, len(image_ids),
-                              init_augm, self.ids_file[im_id]))
-                self.augment_image(image, super_class=i,
-                                   masks=masks, ann_cats=ann_cats, nr_augmentations=init_augm)
-                # while remainder:
-                #     im_id = np.random(0, nr_super_cats)
-                #     masks, ann_cats = self.load_masks(im_id)
-                #     image = self.load_image(im_id)
-                #     self.augment_image(image, super_class=i,
-                #                        mask=masks, nr_augmentations=1)
-                #     remainder -= 1
-        self.create_annotation_file()
+            init_augm, remainder = self.compute_nr_aug(
+                super_cat_histogram[i], max_cnt)
+            if init_augm != 0:
+                for j, im_id in enumerate(image_ids):
+                    masks, ann_cats = self.load_masks(im_id)
+                    image = self.load_image(im_id)
+                    print("Supercategory: {}/{} Current image: {}/{} augs: {}, image: {}"
+                          .format(i + 1, nr_super_cats, j + 1, len(image_ids),
+                                  init_augm, self.ids_file[im_id]))
+                    img_i, ann_i = self.augment_image(image, super_class=i, masks=masks,
+                                                      ann_cats=ann_cats, nr_augmentations=init_augm)
+                    img_info.extend(img_i)
+                    ann_info.extend(ann_i)
+                    # while remainder:
+                    #     im_id = np.random(0, nr_super_cats)
+                    #     masks, ann_cats = self.load_masks(im_id)
+                    #     image = self.load_image(im_id)
+                    #     self.augment_image(image, super_class=i,
+                    #                        mask=masks, nr_augmentations=1)
+                    #     remainder -= 1
+            else:
+                print("Supercategory: {}/{} No augs to be done."
+                      .format(i + 1, nr_super_cats))
+            print("Finished supercategory {}, saving...".format(i))
+            self.create_annotation_file(i, img_info, ann_info)
+            print("Progress saved.")
 
-    def create_annotation_file(self):
-        data = {"info": self.dataset["info"], "images": self.imgs,
-                "annotations": self.anns, "scene_annotations": self.dataset["scene_annotations"],
-                "licenses": [], "categories": self.categories, "scene_categories": self.dataset["scene_categories"]}
-        with open('./data/ann_aug.json', 'w') as f:
+    def create_annotation_file(self, current_super_cat, img_info, ann_info):
+        ann_file = self.dataset_path + "/ann_aug.json"
+        data = {}
+        if exists(ann_file):
+            with open(ann_file) as fs:
+                data = json.loads(fs.read())
+                data["images"].extend(img_info)
+                data["annotations"].extend(ann_info)
+        else:
+            data = {"info": self.dataset["info"], "images": self.imgs,
+                    "annotations": self.anns, "scene_annotations":
+                    self.dataset["scene_annotations"], "licenses": [],
+                    "categories": self.categories,
+                    "scene_categories": self.dataset["scene_categories"]}
+        with open(ann_file, 'w') as f:
             json.dump(data, f, ensure_ascii=False)
+        with open(self.dataset_path + '/last_save.log', 'a+') as f:
+            f.write("{}, {}, {}\n".format(
+                current_super_cat, self.img_id, self.ann_id))

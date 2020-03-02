@@ -82,7 +82,7 @@ def create_image_info(image_id, file_name, image_size,
     return image_info
 
 
-def create_annotation_info(annotation_id, image_id, category_info, binary_mask, image_size=None,
+def create_annotation_info(annotation_id, image_id, category_id, binary_mask, image_size=None,
                            is_crowd=None, tolerance=2, bbox=None):
 
     # if image_size is not None:
@@ -113,9 +113,9 @@ def create_annotation_info(annotation_id, image_id, category_info, binary_mask, 
     annotation_info = {
         "id": annotation_id,
         "image_id": image_id,
-        "category_id": category_info,
+        "category_id": int(category_id),
         "iscrowd": is_crowd,
-        "area": area,
+        "area": area.tolist(),
         "bbox": bbox.tolist(),
         "segmentation": segmentation
     }
