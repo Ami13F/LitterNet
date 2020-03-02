@@ -39,6 +39,11 @@ class Dataset:
             self.file_ids[img['file_name']] = img['id']
             self.ids_file[img['id']] = img['file_name']
 
+        self.prepare()
+
+    def prepare(self):
+        self.restore_session()
+
     def cat_to_super_cat(self):
         """Map categories into supercategories
 
@@ -354,12 +359,16 @@ class Dataset:
     def restore_session(self):
         log_file = self.dataset_path + "/last_save.log"
         if exists(log_file):
+            print("Log file exists, resuming...")
             with open(log_file) as fs:
                 last_line = fs.readlines()[-1]
                 last_line = last_line.strip("\n").split(",")
-                self.last_cat = last_line[0]
-                self.img_id = last_line[1]
-                self.ann_id = last_line[2]
+                self.last_cat = int(last_line[0]) + 1  # first unsaved category
+                self.img_id = int(last_line[1])
+                self.ann_id = int(last_line[2])
+            print("Last category", self.last_cat)
+            print("Image id: ", self.img_id)
+            print("Ann id: ", self.ann_id)
 
     def generate_filepath(self, generated_dir, img_id):
         if not exists(generated_dir):
@@ -401,6 +410,7 @@ class Dataset:
             init_augm, remainder = self.compute_nr_aug(
                 super_cat_histogram[i], max_cnt)
             if init_augm != 0:
+                # [image_ids[0]] for one image
                 for j, im_id in enumerate(image_ids):
                     masks, ann_cats = self.load_masks(im_id)
                     image = self.load_image(im_id)
