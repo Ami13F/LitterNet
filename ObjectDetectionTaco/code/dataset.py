@@ -1,29 +1,27 @@
+import cv2
 import json
 import numpy as np
-import pandas as pd
 from os import listdir, mkdir, rmdir
 from os.path import isfile, join, isdir, exists
 from sklearn.model_selection import train_test_split
 import pycococreatortools as creator
 from pycocotools.coco import COCO, maskUtils
-import cv2
-import numpy as np
 from imgaug import augmenters as iaa
 import imgaug as ia
 
 
 class Dataset:
-    def __init__(self, root_path):
+    def __init__(self, root_path, ann_file):
         self.root_path = root_path
         self.dataset_path = root_path + "/data"
-        self.ann_file_path = self.dataset_path + "/annotations.json"
+        self.ann_file_path = self.dataset_path + "/" + ann_file
         self.coco = COCO(self.ann_file_path)
 
         # read dataset
         with open(self.ann_file_path, 'r') as f:
             self.dataset = json.loads(f.read())
 
-        self.categories = self.dataset['categories']  # leave as is
+        self.categories = self.dataset['categories']
         self.anns = self.dataset['annotations']
         self.imgs = self.dataset['images']
 
@@ -39,9 +37,11 @@ class Dataset:
             self.file_ids[img['file_name']] = img['id']
             self.ids_file[img['id']] = img['file_name']
 
-        self.prepare()
+        self.scat2cat = self.super_cat_to_cat()
+        self.cat2scat = self.cat_to_super_cat()
+        # self.prepare()
 
-    def prepare(self):
+    def prepare(self, img_ids = None):
         self.restore_session()
 
     def cat_to_super_cat(self):
@@ -50,11 +50,13 @@ class Dataset:
         Returns:
             map - cat_id: super_cat_id
         """
+
+        # TODO: make dict of sets
         # Map categories and super categories
         super_cat_last_name = self.categories[0]['supercategory']
 
         nr_super_cats = 1
-        cat_to_super_cat = {}
+        cat_to_supercat = {}
 
         for i, cat_it in enumerate(self.categories):
             super_cat_name = cat_it['supercategory']
@@ -62,9 +64,9 @@ class Dataset:
             if super_cat_name != super_cat_last_name:
                 super_cat_last_name = super_cat_name
                 nr_super_cats += 1
-            cat_to_super_cat[i] = nr_super_cats - 1
+            cat_to_supercat[i] = nr_super_cats - 1
 
-        return cat_to_super_cat
+        return cat_to_supercat
 
     def super_cat_to_cat(self):
         """Map categories into supercategories
@@ -73,27 +75,28 @@ class Dataset:
             map - cat_id: super_cat_id
         """
 
+        # TODO: make dict of sets
         # Map categories and super categories
         super_cat_last_name = self.categories[0]['supercategory']
 
         nr_super_cats = 0
-        super_cat_2_cat = {}
+        supercat_to_cat = {}
 
         cats = []
         for i, cat_it in enumerate(self.categories):
             super_cat_name = cat_it['supercategory']
             # Adding new supercat
             if super_cat_name != super_cat_last_name:
-                super_cat_2_cat[nr_super_cats] = cats
+                supercat_to_cat[nr_super_cats] = cats
                 cats = [i]
                 nr_super_cats += 1
                 super_cat_last_name = super_cat_name
             else:
                 cats.append(i)
-        super_cat_2_cat[nr_super_cats] = cats
-        return super_cat_2_cat
+        supercat_to_cat[nr_super_cats] = cats
+        return supercat_to_cat
 
-    def images_file_path(self):
+    def get_dataset_files(self):
         dataset_files = []
         dataset_dirs = [f for f in listdir(
             self.dataset_path) if isdir(join(self.dataset_path, f))]
@@ -104,25 +107,38 @@ class Dataset:
                     dataset_files.append(dir_name + '/' + f)
         return dataset_files
 
-    def split_data_train_and_test(self, train_file, test_file):
-        file_train = self.root_path + train_file
-        file_test = self.root_path + test_file
+    @staticmethod
+    def scat_interval_limit(super_categories, excluded_scat):
+        remaining_scat = []
+        if isinstance(super_categories, list):
+            remaining_scat = [scat for scat in super_categories
+                                    if scat not in excluded_scat]
+        elif super_categories in excluded_scat:
+            return []
+        else:
+            remaining_scat.append(super_categories)
+                    
+        for i, s in enumerate(remaining_scat):
+            for val in excluded_scat:
+                if s > val:
+                    remaining_scat[i] -= 1
 
-        dataset_files = self.images_file_path()
+        return remaining_scat
 
-        X_train, X_test = train_test_split(
-            dataset_files, test_size=0.2, random_state=0)
 
-        with open(file_train, "w") as file_stream:
-            for file_name in X_train:
-                file_name = self.dataset_path + "/" + file_name
-                file_stream.write(file_name)
-                file_stream.write("\n")
+    def img_paths(self, img_ids):
+        dataset_files = []
+        for im_id in img_ids:
+            dataset_files.append(self.ids_file[im_id])
+        return dataset_files
 
-        with open(file_test, "w") as file_stream:
-            for file_name in X_test:
-                file_name = self.dataset_path + "/" + file_name
-                file_stream.write(file_name)
+    def save_data(self, img_paths, destfile):
+        destpath = self.root_path + '/' + destfile
+
+        with open(destpath, "w") as file_stream:
+            for filepath in img_paths:
+                filepath = self.dataset_path + "/" + filepath
+                file_stream.write(filepath)
                 file_stream.write("\n")
 
     def compute_relative_coordonates(self, x, y, w, h, imW, imH):
@@ -142,41 +158,44 @@ class Dataset:
            width
            height
           """
-        x_center = (x + w / 2) / imW
+        x_center = (x + w / 2) / imW        
         y_center = (y + h / 2) / imH
         width = w / imW
         height = h / imH
         return x_center, y_center, width, height
 
-    def create_label_file(self, file_name):
-        dataset_files = self.images_file_path()
-
-        for image_file_path in dataset_files:
+    def create_label_file(self, img_paths, excluded_cats={}):
+        for i, image_file_path in enumerate(img_paths):
             text_filepath = self.dataset_path + \
                 '/' + image_file_path[:-3] + "txt"
-            print(text_filepath)
+            print("Saving {}/{} - {}...".format(
+                i + 1,len(img_paths), image_file_path))
 
+            assert(image_file_path in self.file_ids.keys())
             img_id = self.file_ids[image_file_path]
-            if img_id == -1:
-                continue
 
             annIds = self.coco.getAnnIds(
                 imgIds=img_id, catIds=[], iscrowd=None)
             anns_sel = self.coco.loadAnns(annIds)
 
-            with open(text_filepath, "w+") as file_stream:
-                for image_info in self.anns:
+            with open(text_filepath, "w") as file_stream:
+                for image_info in anns_sel:
                     image_id = image_info["image_id"]
-                    im = self.coco.imgs[image_id]
+
+                    # Category id
+                    category_id = self.cat2scat[image_info["category_id"]]
+                    if category_id in excluded_cats:
+                        continue
+                    category_id = Dataset.scat_interval_limit(category_id, excluded_cats)[0]
 
                     [x, y, w, h] = image_info['bbox']
-                    # Category id
-                    category_id = self.cat_to_super_cat()[
-                        image_info["category_id"]]
+                    im = self.coco.imgs[image_id]
+                    imW = im['width']
+                    imH = im['height']
 
                     # Compute centers
                     x_center, y_center, width, height = self.compute_relative_coordonates(
-                        x, y, w, h, im["width"], im['height'])
+                        x, y, w, h, imW, imH)
 
                     # Write coordonates and class type to file
                     line = str(category_id) + " " + str(x_center) + " " + \
@@ -230,7 +249,7 @@ class Dataset:
         mask = maskUtils.decode(mask_encoding)
         return mask
 
-    def load_masks(self, image_id):
+    def load_masks(self, image_id, return_mask=True):
         """Load instance masks for the given image.
 
         Different datasets use different ways to store masks. This
@@ -252,18 +271,21 @@ class Dataset:
         for annotation in anns:
             class_id = annotation["category_id"]
             im = self.coco.imgs[image_id]
-            m = self.ann_to_mask(annotation, im["height"],
+            if return_mask:
+                m = self.ann_to_mask(annotation, im["height"],
                                  im["width"])
-            # Some objects are so small that they're less than 1 pixel area
-            # and end up rounded out. Skip those objects.
-            if m.max() < 1:
-                continue
-            instance_masks.append(m)
+                # Some objects are so small that they're less than 1 pixel area
+                # and end up rounded out. Skip those objects.
+                if m.max() < 1:
+                    continue
+                instance_masks.append(m)
             class_ids.append(class_id)
 
         # Pack instance masks into an array
         if len(class_ids) != 0:
-            mask = np.stack(instance_masks, axis=2).astype(np.bool)
+            mask = None
+            if return_mask:
+                mask = np.stack(instance_masks, axis=2).astype(np.bool)
             class_ids = np.array(class_ids, dtype=np.int32)
             return mask, class_ids
 
@@ -326,8 +348,9 @@ class Dataset:
             # TODO: remove hardcoded path initialize new folder in constructor
             image_info, ann_info = self.get_coco_info(
                 self.dataset_path + "/augm", image_augmented, mask_augmented, ann_cats)
-            imgs_info.append(image_info)
-            anns_info.extend(ann_info)
+            if ann_info is not None:
+                imgs_info.append(image_info)
+                anns_info.extend(ann_info)
 
             path = self.dataset_path + "/" + image_info['file_name']
             cv2.imwrite(path, image_augmented)
@@ -398,6 +421,9 @@ class Dataset:
         return image_info, anns_info
 
     def generate_augmented_datas(self):
+        '''
+        Generate images. Data augmentation.
+        '''
         super_to_cat = self.super_cat_to_cat()
         nr_super_cats = len(super_to_cat)
         super_cat_histogram = self.count_super_cat(nr_super_cats)
