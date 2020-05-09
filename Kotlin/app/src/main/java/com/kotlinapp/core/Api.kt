@@ -1,3 +1,25 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:eb2709d72cdbd7e43144d34f6bebf2fadcd3dcd2ac52dd8f54a1f5bfe64d87a8
-size 609
+package com.kotlinapp.core
+
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object Api {
+//    private const val ip = "192.168.0.101"
+    private const val ip = "192.168.1.6"
+    private const val URL = "http://$ip:3000/api/"
+
+    val tokenInterceptor = TokenInterceptor()
+
+
+    private val client: OkHttpClient = OkHttpClient.Builder().apply {
+        this.addInterceptor(tokenInterceptor)
+    }.build()
+
+    val retrofit = Retrofit.Builder()
+        .baseUrl(URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(client)
+        .build()
+
+}

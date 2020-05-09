@@ -1,3 +1,25 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:7b56d79a25f81b655c1f969ed536a5f476ca4b957bf7c548ea46d92c58283bab
-size 643
+package com.kotlinapp.utils
+
+import androidx.room.TypeConverter
+import com.google.gson.Gson
+
+import com.kotlinapp.entities.AvatarHolder
+
+
+class AvatarConverter {
+    companion object{
+        @TypeConverter
+        @JvmStatic
+        fun fromString(value: String?): AvatarHolder? {
+            return Gson().fromJson(value, AvatarHolder::class.java)
+        }
+
+        @TypeConverter
+        @JvmStatic
+        fun avatarToString(list: AvatarHolder?): String? {
+            val gson = Gson()
+            return gson.toJson(list)
+        }
+    }
+
+}

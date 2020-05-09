@@ -1,3 +1,7 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9c22f42351ac02ddef3d800eacb447d53ca68ac9504438c74444db3f4f0976be
-size 185
+package com.kotlinapp.utils
+
+public val Any.TAG: String
+    get(){
+        val tag = javaClass.simpleName
+        return if(tag.length <=23) tag else tag.substring(0,23)
+    }

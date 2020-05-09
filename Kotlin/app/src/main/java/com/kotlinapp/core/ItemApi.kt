@@ -1,3 +1,33 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f697edcc10d23e1b5111585099f74cb769ec8412e2ec9a1bb9719e652ce22b57
-size 845
+package com.kotlinapp.core
+
+import com.kotlinapp.entities.Player
+import retrofit2.Call
+import retrofit2.http.*
+
+
+object ItemApi{
+
+    interface Service{
+        @GET("Players")
+        fun getPlayers(): Call<List<Player>>
+
+        @GET("Players/{id}")
+        suspend fun find(@Path("id") personId: Int): Player
+
+        @Headers("Content-Type: application/json")
+        @POST("Players")
+        suspend fun create(@Body player: Player): Player
+
+        @Headers("Content-Type: application/json")
+        @GET("Players/findOne")
+        suspend fun findOne(@Query("filter") query: String): Player
+
+        @Headers("Content-Type: application/json")
+        @PUT("Players")
+        suspend fun update(@Body player: Player): Player
+    }
+
+    val service: Service = Api.retrofit.create(
+        Service::class.java)
+
+}

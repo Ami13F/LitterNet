@@ -1,3 +1,94 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:3dcdee9670f064d95182e93f9adcf6712dce1f80d80f3f8a412f56f71c2a87a8
-size 3049
+package com.kotlinapp.entities
+
+import android.util.Log
+import androidx.lifecycle.LiveData
+import com.kotlinapp.auth.AuthApi
+import com.kotlinapp.auth.AuthApi.authService
+import com.kotlinapp.auth.data.User
+import com.kotlinapp.core.ItemApi
+import retrofit2.await
+import com.kotlinapp.core.Result
+import com.kotlinapp.localPersistence.ItemDao
+import com.kotlinapp.utils.TAG
+
+class PlayerRepository (private val itemDao: ItemDao){
+
+    var players = itemDao.getAllPlayers()
+    var users = itemDao.getAllUsers()
+    var leaders = itemDao.getSortedEntities()
+
+    suspend fun sortLeaders(): Result<Boolean> {
+        return try {
+            //TODO : clear db
+            Log.d(TAG,"Refreshing...")
+            val usersServer = authService.getAllUsers().await()
+            val items = ItemApi.service.getPlayers().await()
+            Log.d(TAG,"Users from server: $usersServer")
+            Log.d(TAG,"Players from server: $items")
+            for(user in usersServer){
+                Log.d(TAG,"USER: $user")
+                itemDao.insertUser(user)
+            }
+            for (item in items) {
+                itemDao.insert(item)
+            }
+            Result.Success(true)
+        } catch(e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    fun findPlayer(playerId: Int): LiveData<Player> {
+        return itemDao.findPlayer(playerId)
+    }
+
+     fun findUser(userEmail: String): LiveData<User> {
+        return itemDao.findUser(userEmail)
+
+    }
+
+    suspend fun save(player: Player): Result<Player> {
+        return try {
+            Log.d(TAG,"Saving player...$player")
+            val createdItem = ItemApi.service.create(player)
+            Log.d(TAG,"Saved player...$createdItem")
+            Result.Success(createdItem)
+        }catch (e: Exception){
+            Log.d(TAG,"Error saving player...${e.message}")
+            Result.Error(e)
+        }
+    }
+
+    suspend fun updateUser(item: User): Result<User> {
+        return try {
+            val updatedItem = authService.updateUser(item.id!!)
+            Result.Success(updatedItem)
+        }catch(e: Exception){
+            Result.Error(e)
+        }
+    }
+
+    suspend fun changePassword(oldPass: String, newPasss: String): Result<Boolean> {
+        return try {
+            val resp = authService.changePass(AuthApi.PasswordChanger(oldPass, newPasss))
+            Log.d(TAG, "Success resp... ${resp.code()}")
+            if (resp.code() >= 400) {
+                return Result.Error(null)
+            }
+            Result.Success(true)
+        }catch(e: Exception){
+            Result.Error(e)
+        }
+    }
+
+    suspend fun updatePlayer(item: Player): Result<Player> {
+        return try {
+            val updatedItem = ItemApi.service.update(item)
+            Result.Success(updatedItem)
+        }catch(e: Exception){
+            Result.Error(e)
+        }finally {
+            itemDao.update(item)
+        }
+    }
+}
