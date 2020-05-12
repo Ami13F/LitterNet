@@ -1,3 +1,35 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:848649504102b6667304a4536859b01a445c51c3a861b5bc3930b16844965270
-size 832
+package com.kotlinapp.design
+
+import android.content.Context
+import android.graphics.Canvas
+import android.util.AttributeSet
+import android.view.View
+import kotlinx.android.synthetic.main.camera_tracking.view.*
+import java.util.*
+
+/** A simple View providing a render callback to other classes.  */
+class OverlayView(
+    context: Context?,
+    attrs: AttributeSet?
+) :
+    View(context, attrs) {
+    private val callbacks: MutableList<DrawCallback> =
+        LinkedList()
+
+    fun addCallback(callback: DrawCallback) {
+        callbacks.add(callback)
+    }
+
+    @Synchronized
+    override fun draw(canvas: Canvas) {
+        super.draw(canvas)
+        for (callback in callbacks) {
+            callback.drawCallback(canvas)
+        }
+    }
+
+    /** Interface defining the callback for client classes.  */
+    interface DrawCallback {
+        fun drawCallback(canvas: Canvas?)
+    }
+}

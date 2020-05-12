@@ -5,23 +5,26 @@ import android.graphics.*
 import android.graphics.Paint.Cap
 import android.graphics.Paint.Join
 import android.text.TextUtils
+import android.util.Log
 import android.util.Pair
 import android.util.TypedValue
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.kotlinapp.design.LabelsBorderText
-import com.kotlinapp.detection.Classifier.Recognition
-import com.kotlinapp.utils.ImageUtils.getTransformationMatrix
+import com.kotlinapp.utils.ImageUtils
+import com.kotlinapp.utils.TAG
 import java.util.*
 
 
 class MultiBoxTracker(context: Context) {
-    val screenRects: MutableList<Pair<Float?, RectF>> =
+    val screenRects: MutableList<Pair<Float, RectF>> =
         LinkedList()
     private val availableColors: Queue<Int> = LinkedList()
-    private val trackedObjects: MutableList<TrackedRecognition> =
+    val trackedObjects: MutableList<TrackedRecognition> =
         LinkedList()
     private val boxPaint = Paint()
     private val textSizePx: Float
-    private val LabelsBorderText: LabelsBorderText
+    private val borderedText: LabelsBorderText
     private var frameToCanvasMatrix: Matrix? = null
     private var frameWidth = 0
     private var frameHeight = 0
@@ -49,15 +52,16 @@ class MultiBoxTracker(context: Context) {
             val rect = detection.second
             canvas.drawRect(rect, boxPaint)
             canvas.drawText("" + detection.first, rect.left, rect.top, textPaint)
-            LabelsBorderText.drawText(canvas, rect.centerX(), rect.centerY(), "" + detection.first)
+            borderedText.drawText(canvas, rect.centerX(), rect.centerY(), "" + detection.first)
         }
     }
 
     @Synchronized
     fun trackResults(
-        results: List<Recognition>,
+        results: List<Classifier.Recognition?>,
         timestamp: Long
     ) {
+        Log.i(TAG, "Processing results from  ${results.size}, $timestamp")
         processResults(results)
     }
 
@@ -68,7 +72,7 @@ class MultiBoxTracker(context: Context) {
             canvas.height / (if (rotated) frameWidth else frameHeight).toFloat(),
             canvas.width / (if (rotated) frameHeight else frameWidth).toFloat()
         )
-        frameToCanvasMatrix = getTransformationMatrix(
+        frameToCanvasMatrix = ImageUtils.getTransformationMatrix(
             frameWidth,
             frameHeight,
             (multiplier * if (rotated) frameHeight else frameWidth).toInt(),
@@ -89,45 +93,55 @@ class MultiBoxTracker(context: Context) {
                     recognition.title,
                     100 * recognition.detectionConfidence
                 ) else String.format("%.2f", 100 * recognition.detectionConfidence)
-            //            LabelsBorderText.drawText(canvas, trackedPos.left + cornerSize, trackedPos.top,
+            //            borderedText.drawText(canvas, trackedPos.left + cornerSize, trackedPos.top,
             // labelString);
-            LabelsBorderText.drawText(
+            borderedText.drawText(
                 canvas, trackedPos.left + cornerSize, trackedPos.top, "$labelString%", boxPaint
             )
         }
     }
 
-    private fun processResults(results: List<Recognition>) {
-        val rectsToTrack: MutableList<Pair<Float, Recognition>> =
-            LinkedList()
+    private fun processResults(results: List<Classifier.Recognition?>) {
+        Log.d(TAG, "Process results...")
+        val rectsToTrack: MutableList<Pair<Float, Classifier.Recognition>> =
+            LinkedList<Pair<Float, Classifier.Recognition>>()
         screenRects.clear()
-        val rgbFrameToScreen = Matrix(frameToCanvasMatrix)
+        val rgbFrameToScreen =
+            Matrix(frameToCanvasMatrix)
         for (result in results) {
-            if (result.getLocation() == null) {
+            val location = result!!.getLocation()
+            if(location.left == 0f &&
+                location.right == 0f &&
+                location.top == 0f &&
+                location.bottom == 0f)
                 continue
-            }
-            val detectionFrameRect = RectF(result.getLocation())
+
+            val detectionFrameRect = RectF(location)
             val detectionScreenRect = RectF()
             rgbFrameToScreen.mapRect(detectionScreenRect, detectionFrameRect)
-
+            Log.v(TAG,
+                "Result! Frame:  $location mapped to screen: $detectionScreenRect"
+            )
             screenRects.add(
                 Pair(
-                    result.confidence,
+                    result.confidence!!,
                     detectionScreenRect
                 )
             )
             if (detectionFrameRect.width() < MIN_SIZE || detectionFrameRect.height() < MIN_SIZE) {
+                Log.w(TAG,"Degenerate rectangle! $detectionFrameRect")
                 continue
             }
             rectsToTrack.add(
-                Pair(
-                    result.confidence!!,
+                Pair<Float, Classifier.Recognition>(
+                    result.confidence,
                     result
                 )
             )
         }
         trackedObjects.clear()
         if (rectsToTrack.isEmpty()) {
+            Log.v(TAG,"Nothing to track, aborting.")
             return
         }
         for (potential in rectsToTrack) {
@@ -143,7 +157,7 @@ class MultiBoxTracker(context: Context) {
         }
     }
 
-    private class TrackedRecognition {
+    class TrackedRecognition {
         var location: RectF? = null
         var detectionConfidence = 0f
         var color = 0
@@ -181,12 +195,12 @@ class MultiBoxTracker(context: Context) {
         boxPaint.strokeWidth = 10.0f
         boxPaint.strokeCap = Cap.ROUND
         boxPaint.strokeJoin = Join.ROUND
-        boxPaint.setStrokeMiter(100f)
+        boxPaint.strokeMiter = 100f
         textSizePx = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             TEXT_SIZE_DIP,
             context.resources.displayMetrics
         )
-        LabelsBorderText = LabelsBorderText(textSizePx)
+        borderedText = LabelsBorderText(textSizePx)
     }
 }

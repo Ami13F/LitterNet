@@ -37,10 +37,7 @@ class ItemListFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         Log.v(TAG, "onActivityCreated Leaderboard...")
-        if (!AuthRepository.isLoggedIn) {
-            findNavController().navigate(R.id.login_fragment)
-            return
-        }
+
         setupItemList()
 
         generalBtn.setOnClickListener{

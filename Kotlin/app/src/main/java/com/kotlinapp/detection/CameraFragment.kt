@@ -1,6 +1,7 @@
-package com.kotlinapp.fragments
+package com.kotlinapp.detection
 
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.ImageFormat
@@ -22,10 +23,12 @@ import android.view.*
 import android.view.TextureView.SurfaceTextureListener
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import com.kotlinapp.R
 import com.kotlinapp.design.AutoFitTextureView
 import com.kotlinapp.utils.TAG
 import com.kotlinapp.utils.Permissions
+import kotlinx.android.synthetic.main.camera_tracking.*
 import java.util.*
 import java.util.concurrent.Semaphore
 
@@ -39,24 +42,11 @@ class CameraFragment private constructor(
 ) : Fragment() {
     companion object {
 
-        /**
-         * The camera preview size will be chosen to be the smallest frame by pixel size capable of
-         * containing a DESIRED_SIZE x DESIRED_SIZE square.
-         */
         private const val MINIMUM_PREVIEW_SIZE = 320
 
         /** Conversion from screen rotation to JPEG orientation.  */
         private val ORIENTATION_MOOD = SparseIntArray()
 
-        /**
-         * Given `choices` of `Size`s supported by a camera, chooses the smallest one whose
-         * width and height are at least as large as the minimum of both, or an exact match if possible.
-         *
-         * @param choices The list of sizes that the camera supports for the intended output class
-         * @param width The minimum desired width
-         * @param height The minimum desired height
-         * @return The optimal `Size`, or an arbitrary one if none were big enough
-         */
         protected fun chooseOptimalSize(
             choices: Array<Size>,
             width: Int,
@@ -107,7 +97,7 @@ class CameraFragment private constructor(
             return if (bigEnough.size > 0) {
                 val chosenSize = Collections.min(
                     bigEnough,
-                    CameraFragment.CompareSizesByArea()
+                    CompareSizesByArea()
                 )!!
                 Log.i(TAG, "Chosen size: " + chosenSize.width + "x" + chosenSize.height)
                 chosenSize
@@ -136,10 +126,10 @@ class CameraFragment private constructor(
             )
         }
 
-        fun newInstance( callback: ConnectionCallback,
-                         imageListener: OnImageAvailableListener,
-                         layout: Int,
-                         inputSize: Size?
+        fun newInstance(callback: ConnectionCallback,
+                        imageListener: OnImageAvailableListener,
+                        layout: Int,
+                        inputSize: Size?
         ): CameraFragment? {
             return CameraFragment(
                 callback,
@@ -296,6 +286,11 @@ class CameraFragment private constructor(
         super.onPause()
     }
 
+    override fun onDestroy() {
+        closeCamera()
+        super.onDestroy()
+    }
+
     /** Sets up member variables related to camera.  */
     private fun setUpCameraOutputs() {
         val activity = activity
@@ -308,14 +303,12 @@ class CameraFragment private constructor(
             )
             sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)
 
-            // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
-            // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
-            // garbage capture data.
-            previewSize = chooseOptimalSize(
-                map!!.getOutputSizes(SurfaceTexture::class.java),
-                inputSize.width,
-                inputSize.height
-            )
+            previewSize =
+                chooseOptimalSize(
+                    map!!.getOutputSizes(SurfaceTexture::class.java),
+                    inputSize.width,
+                    inputSize.height
+                )
 
             // We fit the aspect ratio of TextureView to the size of preview we picked.
             val orientation = resources.configuration.orientation
@@ -331,6 +324,28 @@ class CameraFragment private constructor(
             // device this code runs.
         }
         cameraConnectionCallback.onPreviewSizeChosen(previewSize, sensorOrientation!!)
+    }
+
+    fun onDetectionPressed(){
+//        val t = Toast.makeText(this.context, "Analyzing detection...", Toast.LENGTH_LONG)
+//        t.show()
+//        val types = arrayOf<CharSequence>(
+//            "Save score", "Cancel"
+//        )
+////        Log.d(TAG,"Objects.... $detectedObjects")
+//
+////        val score = this.track
+//        val builder: AlertDialog.Builder = AlertDialog.Builder(this.activity)
+//        builder.setTitle("Congratulations your score is: 10")
+//        builder.setItems(types) { dialog, item ->
+//            if (types[item] == "Save score") {
+//                closeCamera()
+//                this.activity!!.onBackPressed()
+//            } else if (types[item] == "Cancel") {
+//                dialog.dismiss()
+//            }
+//        }
+//        builder.show()
     }
 
     private fun openCamera(width: Int, height: Int) {

@@ -47,15 +47,10 @@ object ImageUtils {
     }
 
 
-    fun cameraIntent(fragment: Fragment){
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        fragment.startActivityForResult(intent, REQUEST_CAMERA)
-    }
-
     fun galleryIntent(fragment: Fragment){
         val intent = Intent()
-        intent.setType("image/*")
-        intent.setAction(Intent.ACTION_GET_CONTENT)
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
         fragment.startActivityForResult(Intent.createChooser(intent, "Select File"), FILE_SELECTED)
     }
 

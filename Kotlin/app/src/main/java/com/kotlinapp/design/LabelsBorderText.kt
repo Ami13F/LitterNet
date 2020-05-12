@@ -28,6 +28,10 @@ class LabelsBorderText(interiorColor: Int, exteriorColor: Int, textSize: Float) 
         canvas.drawText(text, posX, posY, interiorTextDesign)
     }
 
+    fun getTextSize(): Float {
+        return textSize
+    }
+
     fun drawText(
         canvas: Canvas,
         posX: Float,

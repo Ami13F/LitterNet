@@ -1,3 +1,92 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:83a09b1c9835a5589675891635bc6361650a979b9f1af0a00c31ebe2a944c48c
-size 3095
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_login"
+    android:backgroundTint="#80FFFFFF"
+    android:backgroundTintMode="src_over"
+    tools:context=".fragments.CreateAccountFragment">
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+
+    <EditText
+        android:id="@+id/emailField"
+        android:hint="Email"
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:layout_height="40dp"
+        android:layout_marginTop="140dp"
+        android:importantForAutofill="no"
+        android:inputType="textEmailAddress"
+        android:textStyle="bold" />
+
+
+    <EditText
+        android:id="@+id/usernameField"
+        android:hint="Username"
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:layout_height="40dp"
+        android:layout_marginTop="180dp"
+        android:importantForAutofill="no"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/passwordField"
+        android:hint="Password"
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:layout_height="40dp"
+        android:layout_marginTop="220dp"
+        android:importantForAutofill="no"
+        android:inputType="textPassword" />
+
+
+    <com.hbb20.CountryCodePicker
+        android:id="@+id/countryField"
+        android:hint="Country"
+        android:textAlignment="center"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="260dp"
+        android:importantForAutofill="no"
+        app:ccp_defaultPhoneCode="40"
+        app:ccp_showFullName="true"
+        app:ccp_showPhoneCode="false"
+        app:ccpDialog_showCloseIcon="true"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:cardCornerRadius="50dp"
+        app:strokeWidth="1dp"
+        android:theme="@style/Theme.MaterialComponents.Light"
+        android:layout_gravity="center_horizontal"
+        app:strokeColor="@color/cardview_dark_background">
+        <ImageView
+            android:id="@+id/avatarImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:srcCompat="@drawable/personicon"
+            android:contentDescription="Avatar" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <Button
+        android:id="@+id/saveAccountBtn"
+        android:text="Save account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="#314FD6" />
+
+</FrameLayout>

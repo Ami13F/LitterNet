@@ -1,3 +1,53 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9bb9598a8f1c363cadc84e2eaabc006ce18cb1de419e9d83d6b2e668d3dacdff
-size 1827
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_profile"
+    android:backgroundTint="#2013B807"
+    android:backgroundTintMode="src_over"
+    tools:context=".fragments.ItemListFragment"
+    >
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:indeterminate="true"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone" />
+
+
+    <Button
+        android:id="@+id/generalBtn"
+        android:layout_width="210dp"
+        android:layout_height="40dp"
+        android:text="General"
+        android:background="#00B0FF"
+        tools:layout_editor_absoluteX="0dp"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <Button
+        android:id="@+id/myCountryBtn"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:text="MyCountry"
+        android:background="#00B0FF"
+        app:layout_constraintLeft_toRightOf="@id/generalBtn"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/item_list"
+        app:layoutManager="LinearLayoutManager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/generalBtn" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

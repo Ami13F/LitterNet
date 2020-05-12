@@ -1,3 +1,27 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a80cf6ce5deb8b084d48d0b27f2429b9872374da2e2e00f8c2140bc3eebd8512
-size 1071
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigate_leaderboard"
+        android:icon="@drawable/baseline_emoji_events_white_18dp"
+        android:title="Leaderbord"
+        android:tooltipText="Leaderboard" />
+
+    <item
+        android:id="@+id/navigate_profile"
+        android:icon="@drawable/baseline_person_white_18dp"
+        android:title="Profile"
+        android:tooltipText="Profile" />
+
+    <item
+        android:id="@+id/navigate_openCamera"
+        android:icon="@drawable/baseline_photo_camera_white_18dp"
+        android:title="Camera"
+        android:tooltipText="Camera" />
+
+    <item
+        android:id="@+id/navigate_out"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="@string/action_logout"
+        android:tooltipText="Logout" />
+
+</menu>

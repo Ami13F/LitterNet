@@ -1,7 +1,9 @@
-
 package com.kotlinapp.detection
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Camera
 import android.hardware.Camera.PreviewCallback
@@ -21,58 +23,61 @@ import android.view.Surface
 import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.WindowManager
-import android.widget.CompoundButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import com.kotlinapp.MainActivity
 import com.kotlinapp.R
-import com.kotlinapp.fragments.CameraFragment
 import com.kotlinapp.utils.ImageUtils
-import com.kotlinapp.utils.Permissions
+import kotlinx.android.synthetic.main.camera_fragment.*
 
-abstract class CameraActivity : AppCompatActivity(),
-    PreviewCallback,
-    OnImageAvailableListener, CompoundButton.OnCheckedChangeListener,
-    View.OnClickListener {
+abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
+    PreviewCallback, CompoundButton.OnCheckedChangeListener{
+    private var classScores: Map<String, Int> = mapOf( "Bottle" to 35, "Bottle cap" to 10,
+            "Can" to 15, "Carton" to 7, "Cup" to 15, "Other" to 13, "Paper" to 24,
+            "Plastic bag + wrapper" to 43, "Straw" to 21, "Styrofoam piece" to 11)
+
     protected var previewWidth = 0
     protected var previewHeight = 0
+    val isDebug = false
     private var handler: Handler? = null
     private var handlerThread: HandlerThread? = null
+    private var useCamera2API = false
     private var isProcessingFrame = false
     private val yuvBytes = arrayOfNulls<ByteArray>(3)
     private var rgbBytes: IntArray? = null
-    private var yRowStride = 0
+    protected var luminanceStride = 0
+        private set
     private var postInferenceCallback: Runnable? = null
     private var imageConverter: Runnable? = null
+    private var bottomSheetLayout: LinearLayout? = null
     private var gestureLayout: LinearLayout? = null
     private var sheetBehavior: BottomSheetBehavior<LinearLayout>? = null
-    protected var inferenceTimeTextView: TextView? = null
+    private var inferenceTimeTextView: TextView? = null
+    private var objectsDetected: MultiBoxTracker? = null
+
     protected var bottomSheetArrowImageView: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(this.javaClass.name,"onCreate $this")
         super.onCreate(null)
-
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
         setContentView(R.layout.camera_fragment)
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
-        actionBar?.hide()
 
-        //Check camera permissions
+        supportActionBar!!.setDisplayShowTitleEnabled(false)
         if (hasPermission()) {
             setFragment()
         } else {
-            Permissions.checkPermission(this)
+            requestPermission()
         }
-
-        val bottomSheetLayout = findViewById<LinearLayout>(R.id.bottom_sheet_layout)
+        captureBtn.setOnClickListener {
+            onDetectionPressed()
+        }
+        bottomSheetLayout = findViewById(R.id.bottom_sheet_layout)
         gestureLayout = findViewById(R.id.gesture_layout)
-        sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout)
+        sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout!!)
         bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow)
         val vto = gestureLayout!!.viewTreeObserver
         vto.addOnGlobalLayoutListener(
@@ -85,7 +90,7 @@ abstract class CameraActivity : AppCompatActivity(),
             })
         sheetBehavior!!.isHideable = false
         // Style bottom view
-        sheetBehavior!!.bottomSheetCallback = object : BottomSheetCallback() {
+        val bt = object : BottomSheetCallback() {
             override fun onStateChanged(
                 bottomSheet: View,
                 newState: Int
@@ -111,7 +116,62 @@ abstract class CameraActivity : AppCompatActivity(),
             ) {
             }
         }
+        sheetBehavior!!.bottomSheetCallback = bt
+
         inferenceTimeTextView = findViewById(R.id.inference_info)
+    }
+
+    private fun onDetectionPressed(){
+        val t = Toast.makeText(this, "Analyzing detection...", Toast.LENGTH_SHORT)
+        t.show()
+
+        Log.d(javaClass.name,"Objects.... $objectsDetected")
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+
+//        If something is detected...
+        if(objectsDetected != null && objectsDetected!!.trackedObjects.isNotEmpty()){
+            Log.d(javaClass.name,"Objects.... ${objectsDetected!!.trackedObjects}")
+
+            val types = arrayOf<CharSequence>(
+                "Save score", "Try again"
+            )
+            var score = 10
+            for ( result in objectsDetected!!.trackedObjects.toList()){
+                Log.d(javaClass.name, "${result.title}")
+                Log.d(javaClass.name, "${classScores[result.title]}")
+                score += classScores[result.title]!!
+            }
+            val title = "Congratulations your score is: $score"
+            builder.setTitle(title)
+            builder.setItems(types) { dialog, item ->
+                if (types[item] == "Save score") {
+                    runOnUiThread{
+                        val startIntent = Intent(baseContext, MainActivity::class.java)
+                        startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startIntent.putExtra("Score", score)
+                        setResult(Activity.RESULT_OK, startIntent)
+                        baseContext.startActivity(startIntent)
+
+                        onBackPressed()
+                    }
+                } else if (types[item] == "Cancel") {
+                    dialog.dismiss()
+                }
+            }
+            builder.show()
+        }else{
+            val title = "There is no garbage, please try again"
+            val types = arrayOf<CharSequence>(
+                "Try again"
+            )
+            builder.setTitle(title)
+            builder.setItems(types) { dialog, item ->
+                if (types[item] == "Try again") {
+                    dialog.dismiss()
+                }
+            }
+            builder.show()
+        }
     }
 
     protected fun getRgbBytes(): IntArray? {
@@ -119,8 +179,9 @@ abstract class CameraActivity : AppCompatActivity(),
         return rgbBytes
     }
 
-    public override fun onPreviewFrame(
-        bytes: ByteArray?,
+
+    override fun onPreviewFrame(
+        bytes: ByteArray,
         camera: Camera
     ) {
         if (isProcessingFrame) {
@@ -141,10 +202,10 @@ abstract class CameraActivity : AppCompatActivity(),
         }
         isProcessingFrame = true
         yuvBytes[0] = bytes
-        yRowStride = previewWidth
+        luminanceStride = previewWidth
         imageConverter = Runnable {
             ImageUtils.convertYUV420SPToARGB8888(
-                bytes!!,
+                bytes,
                 previewWidth,
                 previewHeight,
                 rgbBytes!!
@@ -167,8 +228,7 @@ abstract class CameraActivity : AppCompatActivity(),
             rgbBytes = IntArray(previewWidth * previewHeight)
         }
         try {
-            val image = (reader.acquireLatestImage() ?: return)
-
+            val image = reader.acquireLatestImage() ?: return
             if (isProcessingFrame) {
                 image.close()
                 return
@@ -177,7 +237,7 @@ abstract class CameraActivity : AppCompatActivity(),
             Trace.beginSection("imageAvailable")
             val planes = image.planes
             fillBytes(planes, yuvBytes)
-            yRowStride = planes[0].rowStride
+            luminanceStride = planes[0].rowStride
             val uvRowStride = planes[1].rowStride
             val uvPixelStride = planes[1].pixelStride
             imageConverter = Runnable {
@@ -187,7 +247,7 @@ abstract class CameraActivity : AppCompatActivity(),
                     yuvBytes[2]!!,
                     previewWidth,
                     previewHeight,
-                    yRowStride,
+                    luminanceStride,
                     uvRowStride,
                     uvPixelStride,
                     rgbBytes!!
@@ -258,15 +318,44 @@ abstract class CameraActivity : AppCompatActivity(),
         requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == Permissions.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)  {
+        if (requestCode == PERMISSIONS_REQUEST) {
+            if (allPermissionsGranted(grantResults)) {
                 setFragment()
+            } else {
+                requestPermission()
             }
         }
     }
 
     private fun hasPermission(): Boolean {
-        return Permissions.checkPermission(this)
+        return checkSelfPermission(PERMISSION_CAMERA) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermission() {
+        if (shouldShowRequestPermissionRationale(PERMISSION_CAMERA)) {
+            Toast.makeText(
+                this@CameraActivity,
+                "Camera permission is required for this demo",
+                Toast.LENGTH_LONG
+            )
+                .show()
+        }
+        requestPermissions(
+            arrayOf(PERMISSION_CAMERA),
+            PERMISSIONS_REQUEST
+        )
+    }
+
+    // Returns true if the device supports the required hardware level, or better.
+    private fun isHardwareLevelSupported(
+        characteristics: CameraCharacteristics, requiredLevel: Int
+    ): Boolean {
+        val deviceLevel =
+            characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+        return if (deviceLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+            requiredLevel == deviceLevel
+        } else requiredLevel <= deviceLevel
+        // deviceLevel is not LEGACY, can use numerical sort
     }
 
     private fun chooseCamera(): String? {
@@ -277,17 +366,19 @@ abstract class CameraActivity : AppCompatActivity(),
                 val characteristics =
                     manager.getCameraCharacteristics(cameraId)
 
-                // Ignore front facing camera
-                val facing = characteristics.get(
-                    CameraCharacteristics.LENS_FACING
-                )
+                // We don't use a front facing camera in this sample.
+                val facing = characteristics.get(CameraCharacteristics.LENS_FACING)
                 if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
                     continue
                 }
-                val map = characteristics.get(
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
-                )
-                    ?: continue
+//                val map =
+//                    characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+//                        ?: continue
+
+                useCamera2API = (facing == CameraCharacteristics.LENS_FACING_EXTERNAL
+                        || isHardwareLevelSupported(
+                    characteristics, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+                ))
                 return cameraId
             }
         } catch (e: CameraAccessException) {
@@ -297,14 +388,16 @@ abstract class CameraActivity : AppCompatActivity(),
     }
 
     override fun onBackPressed() {
+
         super.onBackPressed()
         super.onBackPressed()
+        Log.d(this.javaClass.name,"Classs  ${this.localClassName}")
     }
 
 
     protected open fun setFragment() {
         val cameraId = chooseCamera()
-        val fragment: Fragment
+        val fragment: CameraFragment
 
         val callback = object: CameraFragment.ConnectionCallback {
             override fun onPreviewSizeChosen(size: Size?, cameraRotation: Int) {
@@ -317,20 +410,19 @@ abstract class CameraActivity : AppCompatActivity(),
         val camera2Fragment: CameraFragment? = CameraFragment.newInstance(
             callback,
             this,
-            layoutId,
-            desiredPreviewFrameSize
+            getLayoutId(),
+            getDesiredPreviewFrameSize()
         )
         camera2Fragment!!.setCamera(cameraId)
         fragment = camera2Fragment
         supportFragmentManager.beginTransaction().replace(R.id.container,fragment).addToBackStack("name").commit()
     }
 
-    protected fun fillBytes(
+    private fun fillBytes(
         planes: Array<Plane>,
         yuvBytes: Array<ByteArray?>
     ) {
-        // Because of the variable row stride it's not possible to know in
-        // advance the actual necessary dimensions of the yuv planes.
+
         for (i in planes.indices) {
             val buffer = planes[i].buffer
             if (yuvBytes[i] == null) {
@@ -343,9 +435,6 @@ abstract class CameraActivity : AppCompatActivity(),
             buffer[yuvBytes[i]!!]
         }
     }
-
-    val isDebug: Boolean
-        get() = false
 
     protected fun readyForNextImage() {
         if (postInferenceCallback != null) {
@@ -367,17 +456,32 @@ abstract class CameraActivity : AppCompatActivity(),
     ) {
         setUseNNAPI(isChecked)
     }
-
     protected fun showInference(inferenceTime: String?) {
         inferenceTimeTextView!!.text = inferenceTime
     }
-
+    protected fun setTracked(tracked: MultiBoxTracker?) {
+        objectsDetected = tracked
+    }
     protected abstract fun processImage()
     protected abstract fun onPreviewSizeChosen(size: Size?, rotation: Int)
-    protected abstract val layoutId: Int
-    protected abstract val desiredPreviewFrameSize: Size?
+    protected abstract fun getLayoutId(): Int
 
+
+    protected abstract fun getDesiredPreviewFrameSize(): Size?
+
+    protected abstract fun setNumThreads(numThreads: Int)
     protected abstract fun setUseNNAPI(isChecked: Boolean)
 
-
+    companion object {
+        private const val PERMISSIONS_REQUEST = 1
+        private const val PERMISSION_CAMERA = Manifest.permission.CAMERA
+        private fun allPermissionsGranted(grantResults: IntArray): Boolean {
+            for (result in grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
 }

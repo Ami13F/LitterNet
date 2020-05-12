@@ -1,3 +1,23 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:687f6cbeadb06c5d79bca97bfc846854a4f6f5ea2ad0d67f7edfa490b5e1c555
-size 1498
+<resources>
+    <string name="app_name">LitterNet</string>
+    <string name="item_list">LeaderBoard</string>
+    <string name="item_edit">Edit Profile</string>
+    <string name="username_exists">Username already exists</string>
+    <string name="invalid_username">Not a valid username. Try more than 1 character</string>
+    <string name="invalid_password">Password must contain at least 6 characters</string>
+    <string name="invalid_password_chars">Password must not contain special characters</string>
+    <string name="invalid_username_chars">Username must not contain special characters</string>
+    <string name="invalid_email_format">Email format is not correct</string>
+    <string name="email_exists">Email already exists</string>
+    <string name="same_passwords">Passwords must be the same</string>
+    <string name="invalid_old_password">Old password is not correct</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="sign_in">Sign In</string>
+    <string name="action_logout">Logout</string>
+    <string name="person">person</string>
+    <string name="urlImage">https://devitt-forand.com/wp-content/uploads/2018/05/person-icon.png</string>
+    <string name="open_camera">Open camera</string>
+
+</resources>

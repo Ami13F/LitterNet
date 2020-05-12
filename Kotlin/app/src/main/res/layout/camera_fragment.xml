@@ -1,3 +1,38 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:132067a608883b26069fd6f144da09304f1ce66e3149da0e05a1e7b5a8b8d3e3
-size 951
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#00000000">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.kotlin.detection.DetectorActivity"/>
+
+    </RelativeLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/captureBtn"
+        android:layout_width="wrap_content"
+        android:src="@android:drawable/ic_menu_camera"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="100dp"
+        app:backgroundTint="#9B106810"
+        app:maxImageSize="30dp"
+        app:rippleColor="#9C106810" />
+
+    <include
+        android:id="@+id/bottom_sheet_layout"
+        layout="@layout/bottom_sheet"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

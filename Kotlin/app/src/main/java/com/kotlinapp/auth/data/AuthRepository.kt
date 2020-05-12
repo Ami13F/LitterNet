@@ -13,7 +13,7 @@ object AuthRepository {
      var currentPlayer : Player? = null
 
     val isLoggedIn: Boolean
-        get() = user !=null
+        get() = user != null
 
     fun logout(){
         user = null

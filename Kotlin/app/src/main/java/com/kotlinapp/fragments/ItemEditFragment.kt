@@ -23,17 +23,16 @@ import com.kotlinapp.auth.data.User
 import com.kotlinapp.auth.login.afterTextChanged
 import com.kotlinapp.entities.AvatarHolder
 import com.kotlinapp.entities.Player
-import com.kotlinapp.utils.TAG
 import com.kotlinapp.utils.ImageUtils
 import com.kotlinapp.utils.ImageUtils.FILE_SELECTED
 import com.kotlinapp.utils.ImageUtils.REQUEST_CAMERA
-import com.kotlinapp.utils.ImageUtils.cameraIntent
 import com.kotlinapp.utils.ImageUtils.galleryIntent
 import com.kotlinapp.utils.Permissions
+import com.kotlinapp.utils.TAG
 import com.kotlinapp.viewModels.ItemEditViewModel
 import kotlinx.android.synthetic.main.create_account_fragment.*
 import kotlinx.android.synthetic.main.create_account_fragment.progress
-import kotlinx.android.synthetic.main.item_edit_fragment.*
+import kotlinx.android.synthetic.main.profile_fragment.*
 import java.io.IOException
 
 
@@ -47,6 +46,22 @@ class ItemEditFragment : Fragment() {
 
     private var userChoose: String = ""
 
+    companion object {
+        const val SCORE = "0"
+
+
+        fun newInstance(score: String): ItemEditFragment {
+            val fragment = ItemEditFragment()
+
+            val bundle = Bundle().apply {
+                putString(SCORE, score)
+            }
+
+            fragment.arguments = bundle
+
+            return fragment
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,25 +75,45 @@ class ItemEditFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         Log.v(TAG, "onCreateView")
-        return inflater.inflate(R.layout.item_edit_fragment, container, false)
+        if(arguments != null){
+            val score = arguments!!.getString("Score")
+            Log.d(TAG, "Score::::: $score")
+        }
+        return inflater.inflate(R.layout.profile_fragment, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        Log.d(TAG,"Setting initial values...")
-        avatarEdit.setImageBitmap(ImageUtils.arrayToBitmap(AuthRepository.currentPlayer!!.avatar.data))
-        //countryName-Code -> getting code
-        countryEdit.setCountryForNameCode(AuthRepository.currentPlayer!!.country.split("-")[1])
+    override fun onResume() {
+        super.onResume()
+        // get score from user game
+        val obtainedScore = activity!!.intent.getIntExtra("Score",0)
+        Log.d(TAG, "Nuuuum $obtainedScore")
+        //release resource
+        activity!!.intent.putExtra("Score",0)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+//        val score = arguments!!.getString("score")
+//        Log.d(TAG,"Score $score")
+//        val t = Toast.makeText(this.context, "Scoooore $score", Toast.LENGTH_SHORT)
+//        t.show()
+        if (!AuthRepository.isLoggedIn) {
+            findNavController().navigate(R.id.login_fragment)
+            return
+        }
+
         Log.v(TAG, "onActivityCreated")
+        Log.d(TAG, "Logggeed  ${AuthRepository.isLoggedIn}")
+
         viewModel = ViewModelProviders.of(this).get(ItemEditViewModel::class.java)
 
-        setupPasswordState()
         setupViewModel()
+        Log.d(TAG,"Setting initial values...")
+        avatarEdit.setImageBitmap(ImageUtils.arrayToBitmap(AuthRepository.currentPlayer!!.avatar.data))
+        //countryName-Code -> getting code
+        countryEdit.setCountryForNameCode(AuthRepository.currentPlayer!!.country.split("-")[1])
+
+        setupPasswordState()
         countrySpinner()
 
 
@@ -126,6 +161,13 @@ class ItemEditFragment : Fragment() {
     }
 
     private fun setupViewModel() {
+
+        val score = AuthRepository.currentPlayer!!.score
+        val username = AuthRepository.user!!.username
+        val avatar = AuthRepository.currentPlayer!!.avatar
+        Log.d(TAG, "Score: $score  Username: $username")
+        scoreTotal.text = "Your score: $score"
+        usernameText.text = "Hello, $username"
 
         viewModel.playerUpdate.observe(this, Observer {player->
             avatarEdit.setImageBitmap(ImageUtils.arrayToBitmap(AuthRepository.currentPlayer!!.avatar.data))
@@ -197,7 +239,7 @@ class ItemEditFragment : Fragment() {
             val result: Boolean = Permissions.checkPermission(this.activity)
             if (types[item] == "Take a Photo") {
                 userChoose = "Take a Photo"
-                if (result) cameraIntent(this)
+                if (result) cameraIntent()
             } else if (types[item] == "Choose from Gallery") {
                 userChoose = "Choose from Gallery"
                 if (result) galleryIntent(this)
@@ -206,6 +248,12 @@ class ItemEditFragment : Fragment() {
             }
         }
         builder.show()
+    }
+
+    private fun cameraIntent(){
+        Log.d(TAG,"Starting intent...")
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(intent, REQUEST_CAMERA)
     }
 
 
@@ -218,7 +266,7 @@ class ItemEditFragment : Fragment() {
         if(requestCode == Permissions.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if(userChoose == "Take a Photo")
-                    cameraIntent(this)
+                    cameraIntent()
                 else if(userChoose == "Choose from Gallery")
                     galleryIntent(this)
             } else {
@@ -228,7 +276,7 @@ class ItemEditFragment : Fragment() {
     private fun onCaptureImageResult(data: Intent){
         val bitmap = data.extras!!["data"] as Bitmap?
 
-        ImageUtils.saveImageToFile(bitmap!!)
+//        ImageUtils.saveImageToFile(bitmap!!)
         avatarEdit.setImageBitmap(bitmap)
         setAvatar()
     }
@@ -238,7 +286,7 @@ class ItemEditFragment : Fragment() {
         if (data != null) {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(
-                    context!!.contentResolver,
+                    requireContext().contentResolver,
                     data.data
                 )
             } catch (e: IOException) {

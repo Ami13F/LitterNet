@@ -4,7 +4,7 @@
     package="com.kotlinapp"
     xmlns:dist="http://schemas.android.com/apk/distribution">
 
-    <dist:module dist:instant="true" />
+<!--    <dist:module dist:instant="true" />-->
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature
@@ -40,6 +40,9 @@
         </activity>
 
         <activity android:name="com.kotlinapp.detection.DetectorActivity">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
     </application>
 

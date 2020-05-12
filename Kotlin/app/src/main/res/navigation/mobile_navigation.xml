@@ -1,3 +1,40 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:acda1e7925f73569bd1b96c93b9da19d10307224fe22220506176a61c48992d3
-size 1650
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/item_edit_fragment">
+
+    <fragment
+        android:id="@+id/item_list_fragment"
+        android:name="com.kotlinapp.fragments.ItemListFragment"
+        android:label="@string/item_list"
+        tools:layout="@layout/item_list_fragment" />
+
+    <fragment
+        android:id="@+id/login_fragment"
+        android:name="com.kotlinapp.auth.login.LoginFragment"
+        android:label="@string/login"
+        tools:layout="@layout/login_fragment" />
+
+
+    <fragment
+        android:id="@+id/item_edit_fragment"
+        android:name="com.kotlinapp.fragments.ItemEditFragment"
+        android:label="@string/item_edit"
+        tools:layout="@layout/profile_fragment" />
+
+
+    <fragment
+        android:id="@+id/camera_fragment"
+        android:name="com.kotlinapp.detection.CameraFragment"
+        android:label="@string/item_edit"
+        tools:layout="@layout/camera_fragment" />
+
+
+    <fragment
+        android:id="@+id/create_account_fragment"
+        android:name="com.kotlinapp.fragments.CreateAccountFragment"
+        android:label="@string/item_edit"
+        tools:layout="@layout/create_account_fragment" />
+</navigation>

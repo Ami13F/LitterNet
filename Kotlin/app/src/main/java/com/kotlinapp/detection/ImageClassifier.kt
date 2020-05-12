@@ -46,7 +46,8 @@ class ImageClassifier private constructor() : Classifier {
     private lateinit var numDetections: IntArray
     private var imgData: ByteBuffer? = null
     private var tfLite: Interpreter? = null
-    override fun recognizeImage(bitmap: Bitmap?): List<Classifier.Recognition> {
+
+    override fun recognizeImage(bitmap: Bitmap?): List<Classifier.Recognition>? {
         // Log this method so that it can be analyzed with systrace.
         Trace.beginSection("recognizeImage")
         Trace.beginSection("preprocessBitmap")
@@ -81,13 +82,19 @@ class ImageClassifier private constructor() : Classifier {
 
         // Copy the input data into TensorFlow.
         Trace.beginSection("feed")
+        outputLocations = Array(
+            1
+        ) { Array(NUM_DETECTIONS) { FloatArray(4) } }
+        outputClasses = Array(1) { FloatArray(NUM_DETECTIONS) }
+        outputScores = Array(1) { FloatArray(NUM_DETECTIONS) }
+        numDetections = IntArray(1)
         val inputArray = arrayOf<Any?>(imgData)
         val outputMap: MutableMap<Int, Any> =
             HashMap()
-        outputMap[0] = outputLocations
-        outputMap[1] = outputClasses
-        outputMap[2] = outputScores
-        outputMap[3] = numDetections
+        outputMap[0] = outputLocations //[1,10,4]
+        outputMap[1] = outputClasses // [1,1]
+        outputMap[2] = outputScores // [1,1]
+        outputMap[3] = numDetections // int[1]
         Trace.endSection()
 
         // Run the inference call.
@@ -95,9 +102,7 @@ class ImageClassifier private constructor() : Classifier {
         tfLite!!.runForMultipleInputsOutputs(inputArray, outputMap)
         Trace.endSection()
 
-
         // Show the best detections.
-        // after scaling them back to the input size.
         val numDetectionsOutput = Math.min(
             NUM_DETECTIONS,
             numDetections[0]
@@ -126,17 +131,15 @@ class ImageClassifier private constructor() : Classifier {
         return recognitions
     }
 
-    override fun enableStatLogging(logStats: Boolean) {}
-    override val statString: String
-        get() = ""
 
-    override fun close() {}
+
+
     override fun setNumThreads(num_threads: Int) {
-        if (tfLite != null) tfLite!!.setNumThreads(num_threads)
+        tfLite!!.setNumThreads(num_threads)
     }
 
     override fun setUseNNAPI(isChecked: Boolean) {
-        if (tfLite != null) tfLite!!.setUseNNAPI(isChecked)
+        tfLite!!.setUseNNAPI(isChecked)
     }
 
     companion object {
@@ -170,15 +173,6 @@ class ImageClassifier private constructor() : Classifier {
             )
         }
 
-        /**
-         * Initializes a native TensorFlow session for classifying images.
-         *
-         * @param assetManager The asset manager to be used to load assets.
-         * @param modelFilename The filepath of the model GraphDef protocol buffer.
-         * @param labelFilename The filepath of label file for classes.
-         * @param inputSize The size of image input
-         * @param isQuantized Boolean representing model is quantized or not
-         */
         @Throws(IOException::class)
         fun create(
             assetManager: AssetManager,
@@ -193,7 +187,6 @@ class ImageClassifier private constructor() : Classifier {
             val labelsInput = assetManager.open(actualFilename)
             val br =
                 BufferedReader(InputStreamReader(labelsInput))
-
             Log.d(TAG, "Loading labels into detector...")
             for (line in br.lines()) {
                 Log.w(TAG, line)
@@ -216,8 +209,7 @@ class ImageClassifier private constructor() : Classifier {
             }
             d.isModelQuantized = isQuantized
             // Pre-allocate buffers.
-            val numBytesPerChannel: Int
-            numBytesPerChannel = if (isQuantized) {
+            val numBytesPerChannel: Int = if (isQuantized) {
                 1 // Quantized
             } else {
                 4 // Floating point
@@ -226,22 +218,12 @@ class ImageClassifier private constructor() : Classifier {
                 ByteBuffer.allocateDirect(d.inputSize * d.inputSize * 3 * numBytesPerChannel)
             d.imgData!!.order(ByteOrder.nativeOrder())
             d.intValues = IntArray(d.inputSize * d.inputSize)
-
             d.tfLite!!.setNumThreads(NUM_THREADS)
-
             d.outputLocations = Array(
                 1
-            ) {
-                Array(
-                    NUM_DETECTIONS
-                ) { FloatArray(4) }
-            }
-            d.outputClasses = Array(
-                1
-            ) { FloatArray(NUM_DETECTIONS) }
-            d.outputScores = Array(
-                1
-            ) { FloatArray(NUM_DETECTIONS) }
+            ) { Array(NUM_DETECTIONS) { FloatArray(4) } }
+            d.outputClasses = Array(1) { FloatArray(NUM_DETECTIONS) }
+            d.outputScores = Array(1) { FloatArray(NUM_DETECTIONS) }
             d.numDetections = IntArray(1)
             return d
         }

@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-
+//TODO: repair update avatar
 @Entity
 data class AvatarHolder (
     @PrimaryKey(autoGenerate = true)

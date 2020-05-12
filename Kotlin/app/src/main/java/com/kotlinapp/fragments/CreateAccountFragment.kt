@@ -27,7 +27,6 @@ import com.kotlinapp.utils.TAG
 import com.kotlinapp.utils.ImageUtils
 import com.kotlinapp.utils.ImageUtils.FILE_SELECTED
 import com.kotlinapp.utils.ImageUtils.REQUEST_CAMERA
-import com.kotlinapp.utils.ImageUtils.cameraIntent
 import com.kotlinapp.utils.ImageUtils.galleryIntent
 import com.kotlinapp.utils.Permissions
 import com.kotlinapp.viewModels.AccountViewModel
@@ -178,24 +177,31 @@ class CreateAccountFragment : Fragment() {
 
 
     private fun avatarChooser() {
-        val types = arrayOf<CharSequence>(
+        val option = arrayOf<CharSequence>(
             "Choose from Gallery", "Take a Photo", "Cancel"
         )
         val builder: AlertDialog.Builder = AlertDialog.Builder(this.activity)
         builder.setTitle("Choose Photo from...")
-        builder.setItems(types) { dialog, item ->
+        builder.setItems(option) { dialog, item ->
             val result: Boolean = Permissions.checkPermission(this.activity)
-            if (types[item] == "Take a Photo") {
+            if (option[item] == "Take a Photo") {
                 userChoose = "Take a Photo"
-                if (result) cameraIntent(this)
-            } else if (types[item] == "Choose from Gallery") {
+                if (result) cameraIntent()
+            } else if (option[item] == "Choose from Gallery") {
                 userChoose = "Choose from Gallery"
                 if (result) galleryIntent(this)
-            } else if (types[item] == "Cancel") {
+            } else if (option[item] == "Cancel") {
                 dialog.dismiss()
             }
         }
         builder.show()
+    }
+
+    private fun cameraIntent(){
+        Log.d(TAG,"Starting intent...")
+
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(intent, REQUEST_CAMERA)
     }
 
 
@@ -208,7 +214,7 @@ class CreateAccountFragment : Fragment() {
         if(requestCode == Permissions.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if(userChoose == "Take a Photo")
-                    cameraIntent(this)
+                    cameraIntent()
                 else if(userChoose == "Choose from Gallery")
                     galleryIntent(this)
             } else {
@@ -220,7 +226,7 @@ class CreateAccountFragment : Fragment() {
         Log.d(TAG, "start set bitmap")
         val bitmap = data.extras!!["data"] as Bitmap?
 
-        ImageUtils.saveImageToFile(bitmap!!)
+//        ImageUtils.saveImageToFile(bitmap!!)
         Log.d(TAG, "set bitmap")
         avatarImage.setImageBitmap(bitmap)
     }

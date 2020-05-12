@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_profile"
+    android:backgroundTint="#2013B807"
+    android:backgroundTintMode="src_over"
+    tools:context=".fragments.ItemEditFragment">
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center_horizontal"
+        android:theme="@style/Theme.MaterialComponents.Light"
+        app:cardCornerRadius="50dp"
+        app:strokeColor="@color/cardview_dark_background"
+        app:strokeWidth="1dp">
+
+        <ImageView
+            android:id="@+id/avatarEdit"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:contentDescription="Avatar"
+            app:srcCompat="@drawable/personicon" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/round_corners"
+        android:layout_height="150dp"
+        android:backgroundTint="#C4217015">
+
+        <TextView
+            android:id="@+id/usernameText"
+            android:text="Hello, "
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginBottom="250dp"
+            android:layout_marginTop="60dp"
+            android:layout_gravity="center_horizontal"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/scoreTotal"
+            android:text="Your Score:"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="100dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#FFFFFF" />
+
+    </FrameLayout>
+    >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:text="Choose country"
+        android:layout_height="50dp"
+        android:layout_marginTop="250dp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:fontFamily="monospace"
+        android:textSize="24sp"
+        android:textStyle="bold|italic"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        android:background="#45000000" />
+
+    <com.hbb20.CountryCodePicker
+        android:id="@+id/countryEdit"
+        android:hint="Country"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="300dp"
+        android:importantForAutofill="no"
+        android:background="@drawable/round_corners"
+        app:ccp_arrowColor="#FFFFFF"
+
+        app:ccp_contentColor="#FFFFFF"
+        app:ccp_defaultPhoneCode="40"
+        app:ccp_showFullName="true"
+        app:ccp_showPhoneCode="false" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:text="Change password "
+        android:layout_height="50dp"
+        android:layout_marginTop="340dp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:fontFamily="monospace"
+        android:textSize="24sp"
+        android:textStyle="bold|italic"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        android:background="#45000000" />
+
+    <EditText
+        android:id="@+id/oldPassword"
+        android:hint="Old Password"
+        android:textAlignment="center"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="390dp"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        android:gravity="center"
+        android:background="#2DFFFFFF"
+        android:textColorHint="#FFFFFF"
+        android:textColor="#FFFFFF" />
+
+    <EditText
+        android:id="@+id/newPassword1"
+        android:hint="New Password"
+        android:textAlignment="center"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="430dp"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        android:gravity="center"
+        android:background="#2DFFFFFF"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF" />
+
+    <EditText
+        android:id="@+id/newPassword2"
+        android:hint="New Password Again"
+        android:textAlignment="center"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="470dp"
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        android:gravity="center"
+        android:background="#2DFFFFFF"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF" />
+
+    <Button
+        android:id="@+id/saveEditBtn"
+        android:text="Save changed password "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="510dp"
+        android:background="@drawable/round_corners"
+        app:backgroundTint="#314FD6"
+        app:srcCompat="@android:drawable/ic_menu_save" />
+
+
+</FrameLayout>

@@ -6,11 +6,9 @@ import android.graphics.RectF
 
 interface Classifier {
     fun recognizeImage(bitmap: Bitmap?): List<Recognition?>?
-    fun enableStatLogging(debug: Boolean)
-    val statString: String?
 
-    fun close()
     fun setNumThreads(num_threads: Int)
+
     fun setUseNNAPI(isChecked: Boolean)
 
     /** An immutable result returned by a Classifier describing what was recognized.  */

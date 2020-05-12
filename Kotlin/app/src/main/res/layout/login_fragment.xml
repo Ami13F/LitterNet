@@ -1,3 +1,87 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c5ee6b14bd2f17878182370150e8b8c76daf542ba0cd64884af864e9e43fd838
-size 3275
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_login"
+    android:backgroundTint="#80FFFFFF"
+    android:backgroundTintMode="src_over"
+    tools:context=".auth.login.LoginFragment">
+
+    <EditText
+        android:id="@+id/username"
+        android:layout_width="match_parent"
+        android:layout_height="47dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="150dp"
+        android:layout_marginEnd="24dp"
+        android:text="a@a.com"
+        android:hint="@string/username"
+        android:textAlignment="center"
+        android:background="@drawable/round_corners"
+        android:backgroundTint="#3B0C5C77" />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="47dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:hint="@string/password"
+        android:text="123456"
+        android:inputType="textPassword"
+        android:textAlignment="center"
+        android:backgroundTint="#3B0C5C77"
+        android:background="@drawable/round_corners" />
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="64dp"
+        android:enabled="false"
+        android:text="@string/sign_in"
+        android:shadowColor="#B04156F1"
+        android:textStyle="bold"
+        android:backgroundTint="#2979FF"
+        android:background="@drawable/round_corners" />
+
+    <TextView
+        android:id="@+id/error_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="64dp"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="64dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/createAccountBtn"
+        android:text="Create new account"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:textColor="#2196F3"
+        android:textStyle="bold"
+        android:textSize="16dp"
+        android:filterTouchesWhenObscured="false"
+        android:gravity="center_horizontal"
+        android:background="#60EDE0E0" />
+</LinearLayout>
