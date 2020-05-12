@@ -1,0 +1,12 @@
+{
+  "db": {
+    "host": "localhost",
+    "port": 3306,
+    "url": "",
+    "database": "LitterBase",
+    "password": "parola",
+    "name": "db",
+    "user": "root",
+    "connector": "mysql"
+  }
+}

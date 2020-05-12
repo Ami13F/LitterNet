@@ -1,0 +1,60 @@
+{
+  "name": "Player",
+  "base": "PersistedModel",
+  "idInjection": false,
+  "forceId" : false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "avatar": {
+      "type": "buffer",
+      "mysql": {
+        "dataType": "blob"
+      },
+      "required": true
+    },
+    "country": {
+      "type": "string",
+      "required": true,
+      "default": "Romania"
+    },
+    "idPlayer": {
+      "type": "number",
+      "required": true,
+      "id": true
+    },
+    "score": {
+      "type": "number",
+      "required": true,
+      "default": 0
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "findOne"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"      
+    }
+  ],
+  "methods": {}
+}
