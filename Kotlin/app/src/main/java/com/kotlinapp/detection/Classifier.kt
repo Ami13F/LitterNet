@@ -9,8 +9,6 @@ interface Classifier {
 
     fun setNumThreads(num_threads: Int)
 
-    fun setUseNNAPI(isChecked: Boolean)
-
     /** An immutable result returned by a Classifier describing what was recognized.  */
     class Recognition(
         /**

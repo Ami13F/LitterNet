@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Camera
-import android.hardware.Camera.PreviewCallback
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
@@ -23,9 +22,13 @@ import android.view.Surface
 import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.WindowManager
-import android.widget.*
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.kotlinapp.MainActivity
@@ -33,8 +36,9 @@ import com.kotlinapp.R
 import com.kotlinapp.utils.ImageUtils
 import kotlinx.android.synthetic.main.camera_fragment.*
 
-abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
-    PreviewCallback, CompoundButton.OnCheckedChangeListener{
+abstract class CameraActivity : AppCompatActivity(),
+    OnImageAvailableListener,
+    Camera.PreviewCallback{
     private var classScores: Map<String, Int> = mapOf( "Bottle" to 35, "Bottle cap" to 10,
             "Can" to 15, "Carton" to 7, "Cup" to 15, "Other" to 13, "Paper" to 24,
             "Plastic bag + wrapper" to 43, "Straw" to 21, "Styrofoam piece" to 11)
@@ -48,6 +52,8 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
     private var isProcessingFrame = false
     private val yuvBytes = arrayOfNulls<ByteArray>(3)
     private var rgbBytes: IntArray? = null
+    private var yRowStride = 0
+
     protected var luminanceStride = 0
         private set
     private var postInferenceCallback: Runnable? = null
@@ -61,7 +67,7 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
     protected var bottomSheetArrowImageView: ImageView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(this.javaClass.name,"onCreate $this")
+        Log.d(javaClass.name,"onCreate $this")
         super.onCreate(null)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.camera_fragment)
@@ -181,7 +187,7 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
 
 
     override fun onPreviewFrame(
-        bytes: ByteArray,
+        bytes: ByteArray?,
         camera: Camera
     ) {
         if (isProcessingFrame) {
@@ -202,12 +208,10 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
         }
         isProcessingFrame = true
         yuvBytes[0] = bytes
-        luminanceStride = previewWidth
+        yRowStride = previewWidth
         imageConverter = Runnable {
             ImageUtils.convertYUV420SPToARGB8888(
-                bytes,
-                previewWidth,
-                previewHeight,
+                bytes!!, previewWidth, previewHeight,
                 rgbBytes!!
             )
         }
@@ -217,6 +221,7 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
         }
         processImage()
     }
+
 
     /** Callback for Camera2 API  */
     override fun onImageAvailable(reader: ImageReader) {
@@ -237,7 +242,8 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
             Trace.beginSection("imageAvailable")
             val planes = image.planes
             fillBytes(planes, yuvBytes)
-            luminanceStride = planes[0].rowStride
+
+            yRowStride = planes[0].rowStride
             val uvRowStride = planes[1].rowStride
             val uvPixelStride = planes[1].pixelStride
             imageConverter = Runnable {
@@ -247,12 +253,13 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
                     yuvBytes[2]!!,
                     previewWidth,
                     previewHeight,
-                    luminanceStride,
+                    yRowStride,
                     uvRowStride,
                     uvPixelStride,
                     rgbBytes!!
                 )
             }
+
             postInferenceCallback = Runnable {
                 image.close()
                 isProcessingFrame = false
@@ -371,14 +378,14 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
                 if (facing != null && facing == CameraCharacteristics.LENS_FACING_FRONT) {
                     continue
                 }
-//                val map =
-//                    characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-//                        ?: continue
+                characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                    ?: continue
 
                 useCamera2API = (facing == CameraCharacteristics.LENS_FACING_EXTERNAL
                         || isHardwareLevelSupported(
                     characteristics, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
                 ))
+                Log.d(javaClass.name, "Camera API lv2?: $useCamera2API")
                 return cameraId
             }
         } catch (e: CameraAccessException) {
@@ -397,24 +404,27 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
 
     protected open fun setFragment() {
         val cameraId = chooseCamera()
-        val fragment: CameraFragment
-
-        val callback = object: CameraFragment.ConnectionCallback {
-            override fun onPreviewSizeChosen(size: Size?, cameraRotation: Int) {
-                previewHeight = size!!.height
-                previewWidth = size.width
-                this@CameraActivity.onPreviewSizeChosen(size, cameraRotation)
+        var fragment : Fragment
+//        if (useCamera2API) {
+            val callback = object: CameraFragment.ConnectionCallback {
+                override fun onPreviewSizeChosen(size: Size?, cameraRotation: Int) {
+                    previewHeight = size!!.height
+                    previewWidth = size.width
+                    this@CameraActivity.onPreviewSizeChosen(size, cameraRotation)
+                }
             }
-        }
-
-        val camera2Fragment: CameraFragment? = CameraFragment.newInstance(
-            callback,
-            this,
-            getLayoutId(),
-            getDesiredPreviewFrameSize()
-        )
-        camera2Fragment!!.setCamera(cameraId)
-        fragment = camera2Fragment
+            val camera2Fragment: CameraFragment? = CameraFragment.newInstance(
+                callback,
+                this,
+                getLayoutId(),
+                getDesiredPreviewFrameSize()
+            )
+            camera2Fragment!!.setCamera(cameraId)
+            fragment = camera2Fragment
+//        } else {
+//            fragment =
+//                LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize()!!)
+//        }
         supportFragmentManager.beginTransaction().replace(R.id.container,fragment).addToBackStack("name").commit()
     }
 
@@ -449,13 +459,6 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
             Surface.ROTATION_90 -> 90
             else -> 0
         }
-
-    override fun onCheckedChanged(
-        buttonView: CompoundButton,
-        isChecked: Boolean
-    ) {
-        setUseNNAPI(isChecked)
-    }
     protected fun showInference(inferenceTime: String?) {
         inferenceTimeTextView!!.text = inferenceTime
     }
@@ -468,9 +471,6 @@ abstract class CameraActivity : AppCompatActivity(), OnImageAvailableListener,
 
 
     protected abstract fun getDesiredPreviewFrameSize(): Size?
-
-    protected abstract fun setNumThreads(numThreads: Int)
-    protected abstract fun setUseNNAPI(isChecked: Boolean)
 
     companion object {
         private const val PERMISSIONS_REQUEST = 1

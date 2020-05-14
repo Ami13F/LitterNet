@@ -16,13 +16,13 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.util.*
+import kotlin.math.min
 
 
-
+@Suppress("DEPRECATION")
 class ImageClassifier private constructor() : Classifier {
     private var isModelQuantized = false
 
-    // Config values.
     private var inputSize = 0
 
     // Pre-allocated buffers.
@@ -48,21 +48,14 @@ class ImageClassifier private constructor() : Classifier {
     private var tfLite: Interpreter? = null
 
     override fun recognizeImage(bitmap: Bitmap?): List<Classifier.Recognition>? {
-        // Log this method so that it can be analyzed with systrace.
         Trace.beginSection("recognizeImage")
         Trace.beginSection("preprocessBitmap")
         // Preprocess the image data from 0-255 int to normalized float based
         // on the provided parameters.
-        bitmap!!.getPixels(
-            intValues,
-            0,
-            bitmap.width,
-            0,
-            0,
-            bitmap.width,
-            bitmap.height
-        )
+        bitmap!!.getPixels(intValues,0, bitmap.width,0,0, bitmap.width, bitmap.height)
+
         imgData!!.rewind()
+
         for (i in 0 until inputSize) {
             for (j in 0 until inputSize) {
                 val pixelValue = intValues[i * inputSize + j]
@@ -82,15 +75,13 @@ class ImageClassifier private constructor() : Classifier {
 
         // Copy the input data into TensorFlow.
         Trace.beginSection("feed")
-        outputLocations = Array(
-            1
-        ) { Array(NUM_DETECTIONS) { FloatArray(4) } }
+        outputLocations = Array(1) { Array(NUM_DETECTIONS) { FloatArray(4) } }
         outputClasses = Array(1) { FloatArray(NUM_DETECTIONS) }
         outputScores = Array(1) { FloatArray(NUM_DETECTIONS) }
         numDetections = IntArray(1)
+
         val inputArray = arrayOf<Any?>(imgData)
-        val outputMap: MutableMap<Int, Any> =
-            HashMap()
+        val outputMap: MutableMap<Int, Any> = HashMap()
         outputMap[0] = outputLocations //[1,10,4]
         outputMap[1] = outputClasses // [1,1]
         outputMap[2] = outputScores // [1,1]
@@ -103,7 +94,7 @@ class ImageClassifier private constructor() : Classifier {
         Trace.endSection()
 
         // Show the best detections.
-        val numDetectionsOutput = Math.min(
+        val numDetectionsOutput = min(
             NUM_DETECTIONS,
             numDetections[0]
         )
@@ -131,15 +122,8 @@ class ImageClassifier private constructor() : Classifier {
         return recognitions
     }
 
-
-
-
     override fun setNumThreads(num_threads: Int) {
         tfLite!!.setNumThreads(num_threads)
-    }
-
-    override fun setUseNNAPI(isChecked: Boolean) {
-        tfLite!!.setUseNNAPI(isChecked)
     }
 
     companion object {
@@ -195,8 +179,7 @@ class ImageClassifier private constructor() : Classifier {
             br.close()
             d.inputSize = inputSize
             try {
-                val opts =
-                    Interpreter.Options()
+                val opts = Interpreter.Options()
                 opts.setNumThreads(NUM_THREADS)
                 d.tfLite = Interpreter(
                     loadModelFile(

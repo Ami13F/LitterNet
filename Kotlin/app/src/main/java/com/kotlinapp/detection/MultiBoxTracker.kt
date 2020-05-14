@@ -8,8 +8,6 @@ import android.text.TextUtils
 import android.util.Log
 import android.util.Pair
 import android.util.TypedValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.kotlinapp.design.LabelsBorderText
 import com.kotlinapp.utils.ImageUtils
 import com.kotlinapp.utils.TAG
@@ -64,7 +62,6 @@ class MultiBoxTracker(context: Context) {
         Log.i(TAG, "Processing results from  ${results.size}, $timestamp")
         processResults(results)
     }
-
     @Synchronized
     fun draw(canvas: Canvas) {
         val rotated = sensorOrientation % 180 == 90

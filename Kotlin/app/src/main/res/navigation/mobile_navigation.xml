@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/item_list_fragment"
-        android:name="com.kotlinapp.fragments.ItemListFragment"
+        android:name="com.kotlinapp.fragments.LeaderBoardFragment"
         android:label="@string/item_list"
         tools:layout="@layout/item_list_fragment" />
 
@@ -20,7 +20,7 @@
 
     <fragment
         android:id="@+id/item_edit_fragment"
-        android:name="com.kotlinapp.fragments.ItemEditFragment"
+        android:name="com.kotlinapp.fragments.ProfileFragment"
         android:label="@string/item_edit"
         tools:layout="@layout/profile_fragment" />
 

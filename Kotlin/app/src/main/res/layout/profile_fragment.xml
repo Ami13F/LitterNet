@@ -7,7 +7,7 @@
     android:background="@drawable/background_profile"
     android:backgroundTint="#2013B807"
     android:backgroundTintMode="src_over"
-    tools:context=".fragments.ItemEditFragment">
+    tools:context=".fragments.ProfileFragment">
 
     <ProgressBar
         android:id="@+id/progress"
@@ -93,7 +93,6 @@
         android:importantForAutofill="no"
         android:background="@drawable/round_corners"
         app:ccp_arrowColor="#FFFFFF"
-
         app:ccp_contentColor="#FFFFFF"
         app:ccp_defaultPhoneCode="40"
         app:ccp_showFullName="true"

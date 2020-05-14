@@ -1,7 +1,6 @@
 package com.kotlinapp.detection
 
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.ImageFormat
@@ -23,12 +22,10 @@ import android.view.*
 import android.view.TextureView.SurfaceTextureListener
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
 import com.kotlinapp.R
 import com.kotlinapp.design.AutoFitTextureView
-import com.kotlinapp.utils.TAG
 import com.kotlinapp.utils.Permissions
-import kotlinx.android.synthetic.main.camera_tracking.*
+import com.kotlinapp.utils.TAG
 import java.util.*
 import java.util.concurrent.Semaphore
 
@@ -36,9 +33,9 @@ import java.util.concurrent.Semaphore
 class CameraFragment private constructor(
     connectionCallback: ConnectionCallback,
     // Listener for frames
-    private val imageListener: OnImageAvailableListener,
-    private val layout: Int,
-    private val inputSize: Size
+    imageListenerConst: OnImageAvailableListener,
+    layoutConst: Int,
+    inputSizeVal: Size
 ) : Fragment() {
     companion object {
 
@@ -46,8 +43,7 @@ class CameraFragment private constructor(
 
         /** Conversion from screen rotation to JPEG orientation.  */
         private val ORIENTATION_MOOD = SparseIntArray()
-
-        protected fun chooseOptimalSize(
+        fun chooseOptimalSize(
             choices: Array<Size>,
             width: Int,
             height: Int
@@ -146,6 +142,10 @@ class CameraFragment private constructor(
         Semaphore(1)
 
     private val cameraConnectionCallback: ConnectionCallback = connectionCallback
+    private val imageListener : OnImageAvailableListener = imageListenerConst
+    private val layout = layoutConst
+    private val inputSize = inputSizeVal
+
     private val captureCallback: CaptureCallback = object : CaptureCallback() {
         override fun onCaptureProgressed(
             session: CameraCaptureSession,
@@ -161,6 +161,7 @@ class CameraFragment private constructor(
         ) {
         }
     }
+
 
     private var cameraId: String? = null
 
@@ -326,28 +327,6 @@ class CameraFragment private constructor(
         cameraConnectionCallback.onPreviewSizeChosen(previewSize, sensorOrientation!!)
     }
 
-    fun onDetectionPressed(){
-//        val t = Toast.makeText(this.context, "Analyzing detection...", Toast.LENGTH_LONG)
-//        t.show()
-//        val types = arrayOf<CharSequence>(
-//            "Save score", "Cancel"
-//        )
-////        Log.d(TAG,"Objects.... $detectedObjects")
-//
-////        val score = this.track
-//        val builder: AlertDialog.Builder = AlertDialog.Builder(this.activity)
-//        builder.setTitle("Congratulations your score is: 10")
-//        builder.setItems(types) { dialog, item ->
-//            if (types[item] == "Save score") {
-//                closeCamera()
-//                this.activity!!.onBackPressed()
-//            } else if (types[item] == "Cancel") {
-//                dialog.dismiss()
-//            }
-//        }
-//        builder.show()
-    }
-
     private fun openCamera(width: Int, height: Int) {
         setUpCameraOutputs()
         configureTransform(width, height)
@@ -389,6 +368,7 @@ class CameraFragment private constructor(
 
     /** Starts a background thread and its [Handler].  */
     private fun startBackgroundThread() {
+        Log.d(TAG,"Start background thread....")
         backgroundThread = HandlerThread("ImageListener")
         backgroundThread!!.start()
         backgroundHandler = Handler(backgroundThread!!.looper)

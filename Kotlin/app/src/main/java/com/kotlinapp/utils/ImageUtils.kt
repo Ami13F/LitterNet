@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import java.io.ByteArrayOutputStream
@@ -74,6 +73,16 @@ object ImageUtils {
             e.printStackTrace()
         }
     }
+    fun getYUVByteSize(width: Int, height: Int): Int {
+        // The luminance plane requires 1 byte per pixel.
+        val ySize = width * height
+
+        // The UV plane works on 2x2 blocks, so dimensions with odd size must be rounded up.
+        // Each 2x2 block takes 2 bytes to encode, one each for U and V.
+        val uvSize = (width + 1) / 2 * ((height + 1) / 2) * 2
+        return ySize + uvSize
+    }
+
     fun convertYUV420SPToARGB8888(
         input: ByteArray,
         width: Int,

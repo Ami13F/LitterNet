@@ -1,5 +1,6 @@
 package com.kotlinapp.fragments
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -35,8 +36,8 @@ import kotlinx.android.synthetic.main.create_account_fragment.progress
 import kotlinx.android.synthetic.main.profile_fragment.*
 import java.io.IOException
 
-
-class ItemEditFragment : Fragment() {
+@SuppressLint("SetTextI18n")
+class ProfileFragment : Fragment() {
 
     private lateinit var viewModel: ItemEditViewModel
 
@@ -46,22 +47,6 @@ class ItemEditFragment : Fragment() {
 
     private var userChoose: String = ""
 
-    companion object {
-        const val SCORE = "0"
-
-
-        fun newInstance(score: String): ItemEditFragment {
-            val fragment = ItemEditFragment()
-
-            val bundle = Bundle().apply {
-                putString(SCORE, score)
-            }
-
-            fragment.arguments = bundle
-
-            return fragment
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,18 +70,13 @@ class ItemEditFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // get score from user game
-        val obtainedScore = activity!!.intent.getIntExtra("Score",0)
-        Log.d(TAG, "Nuuuum $obtainedScore")
+        updateScore()
         //release resource
         activity!!.intent.putExtra("Score",0)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-//        val score = arguments!!.getString("score")
-//        Log.d(TAG,"Score $score")
-//        val t = Toast.makeText(this.context, "Scoooore $score", Toast.LENGTH_SHORT)
-//        t.show()
         if (!AuthRepository.isLoggedIn) {
             findNavController().navigate(R.id.login_fragment)
             return
@@ -164,7 +144,6 @@ class ItemEditFragment : Fragment() {
 
         val score = AuthRepository.currentPlayer!!.score
         val username = AuthRepository.user!!.username
-        val avatar = AuthRepository.currentPlayer!!.avatar
         Log.d(TAG, "Score: $score  Username: $username")
         scoreTotal.text = "Your score: $score"
         usernameText.text = "Hello, $username"
@@ -200,6 +179,16 @@ class ItemEditFragment : Fragment() {
         })
     }
 
+    private fun updateScore(){
+        val obtainedScore = activity!!.intent.getIntExtra("Score",0)
+        Log.d(TAG, "Score $obtainedScore")
+        if(obtainedScore != 0 ){
+            val score = AuthRepository.currentPlayer!!.score + obtainedScore
+            AuthRepository.currentPlayer!!.score = score
+            viewModel.updateProfile( AuthRepository.currentPlayer!!)
+            scoreTotal.text = "Your score: $score"
+        }
+    }
     private fun countrySpinner() {
         var country: String
         countryEdit.setOnCountryChangeListener{

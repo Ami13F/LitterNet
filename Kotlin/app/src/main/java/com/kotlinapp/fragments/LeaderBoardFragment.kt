@@ -19,7 +19,7 @@ import com.kotlinapp.viewModels.ItemsListViewModel
 import kotlinx.android.synthetic.main.item_list_fragment.*
 
 
-class ItemListFragment : Fragment() {
+class LeaderBoardFragment : Fragment() {
 
     private lateinit var itemListAdapter: PlayersListAdapter
     private lateinit var itemsModel: ItemsListViewModel
