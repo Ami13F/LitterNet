@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.abs
+import kotlin.math.max
 
 
 /** Utility class for manipulating images. Bitmap functions. Avatar upload mood. */
@@ -20,29 +22,39 @@ object ImageUtils {
 
     // This value is 2 ^ 18 - 1, and is used to clamp the RGB values before their ranges
     // are normalized to eight bits.
-    const val kMaxChannelValue = 262143
+    private const val kMaxChannelValue = 262143
 
     fun arrayToBitmap(bit: ByteArray): Bitmap {
         return BitmapFactory.decodeByteArray(bit, 0, bit.size)
     }
 
 
-    fun resizeBitmap(bitmap:Bitmap, width:Int, height:Int):Bitmap{
-        return Bitmap.createScaledBitmap(
-            bitmap,
-            width,
-            height,
-            false
-        )
+    private fun cropBitmap(bitmap:Bitmap):Bitmap{
+        if (bitmap.width >= bitmap.height){
+            return Bitmap.createBitmap(
+                bitmap,
+                bitmap.width/2 - bitmap.height/2,
+                0,
+                bitmap.height,
+                bitmap.height
+            )
+        }else{
+            return Bitmap.createBitmap(
+                bitmap,
+                0,
+                bitmap.height/2 - bitmap.width/2,
+                bitmap.width,
+                bitmap.width
+            )
+        }
     }
 
     fun  bitmapToArray(bitmap: Bitmap): ByteArray{
-        val bit = ImageUtils.resizeBitmap(bitmap,100,100)
+        val bit = cropBitmap(bitmap)
         val stream = ByteArrayOutputStream()
         bit.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-        val by = stream.toByteArray()
 
-        return by
+        return stream.toByteArray()
     }
 
 
@@ -73,45 +85,9 @@ object ImageUtils {
             e.printStackTrace()
         }
     }
-    fun getYUVByteSize(width: Int, height: Int): Int {
-        // The luminance plane requires 1 byte per pixel.
-        val ySize = width * height
 
-        // The UV plane works on 2x2 blocks, so dimensions with odd size must be rounded up.
-        // Each 2x2 block takes 2 bytes to encode, one each for U and V.
-        val uvSize = (width + 1) / 2 * ((height + 1) / 2) * 2
-        return ySize + uvSize
-    }
 
-    fun convertYUV420SPToARGB8888(
-        input: ByteArray,
-        width: Int,
-        height: Int,
-        output: IntArray
-    ) {
-        val frameSize = width * height
-        var j = 0
-        var yp = 0
-        while (j < height) {
-            var uvp = frameSize + (j shr 1) * width
-            var u = 0
-            var v = 0
-            var i = 0
-            while (i < width) {
-                val y = 0xff and input[yp].toInt()
-                if (i and 1 == 0) {
-                    v = 0xff and input[uvp++].toInt()
-                    u = 0xff and input[uvp++].toInt()
-                }
-                output[yp] = YUV2RGB(y, u, v)
-                i++
-                yp++
-            }
-            j++
-        }
-    }
-
-    private fun YUV2RGB(y: Int, u: Int, v: Int): Int {
+    private fun yuv2rgb(y: Int, u: Int, v: Int): Int {
         // Adjust and check YUV values
         var y = y
         var u = u
@@ -156,11 +132,11 @@ object ImageUtils {
             val pY = yRowStride * j
             val pUV = uvRowStride * (j shr 1)
             for (i in 0 until width) {
-                val uv_offset = pUV + (i shr 1) * uvPixelStride
-                out[yp++] = YUV2RGB(
+                val uvOffset = pUV + (i shr 1) * uvPixelStride
+                out[yp++] = yuv2rgb(
                     0xff and yData[pY + i].toInt(),
-                    0xff and uData[uv_offset].toInt(),
-                    0xff and vData[uv_offset].toInt()
+                    0xff and uData[uvOffset].toInt(),
+                    0xff and vData[uvOffset].toInt()
                 )
             }
         }
@@ -191,7 +167,7 @@ object ImageUtils {
         val matrix = Matrix()
         if (applyRotation != 0) {
             if (applyRotation % 90 != 0) {
-                Log.w(TAG, "Rotation of %d % 90 != 0$applyRotation")
+                Log.w(TAG, "Rotation of $applyRotation to 90")
             }
 
             // Translate so center of image is at origin.
@@ -203,7 +179,7 @@ object ImageUtils {
 
         // Account for the already applied rotation, if any, and then determine how
         // much scaling is needed for each axis.
-        val transpose = (Math.abs(applyRotation) + 90) % 180 == 0
+        val transpose = (abs(applyRotation) + 90) % 180 == 0
         val inWidth = if (transpose) srcHeight else srcWidth
         val inHeight = if (transpose) srcWidth else srcHeight
 
@@ -214,7 +190,7 @@ object ImageUtils {
             if (maintainAspectRatio) {
                 // Scale by minimum factor so that dst is filled completely while
                 // maintaining the aspect ratio. Some image may fall off the edge.
-                val scaleFactor = Math.max(scaleFactorX, scaleFactorY)
+                val scaleFactor = max(scaleFactorX, scaleFactorY)
                 matrix.postScale(scaleFactor, scaleFactor)
             } else {
                 // Scale exactly to fill dst from src.

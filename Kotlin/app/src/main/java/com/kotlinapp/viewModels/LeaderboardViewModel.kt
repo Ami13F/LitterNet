@@ -14,7 +14,7 @@ import com.kotlinapp.core.Result
 import com.kotlinapp.localPersistence.ItemDao
 import com.kotlinapp.localPersistence.LitterDatabase
 
-class ItemsListViewModel(application: Application): AndroidViewModel(application) {
+class LeaderboardViewModel(application: Application): AndroidViewModel(application) {
 
     private val mutableLoading = MutableLiveData<Boolean>().apply { value = false }
     private val mutableException = MutableLiveData<Exception>().apply { value = null }
@@ -30,7 +30,7 @@ class ItemsListViewModel(application: Application): AndroidViewModel(application
     val loading: LiveData<Boolean> = mutableLoading
     val loadingError: LiveData<Exception> = mutableException
 
-    val itemRepository: PlayerRepository
+    private val itemRepository: PlayerRepository
 
     init {
         itemRepository = PlayerRepository(itemDao)

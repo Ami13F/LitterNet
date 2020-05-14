@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.hardware.Camera
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
@@ -37,8 +36,7 @@ import com.kotlinapp.utils.ImageUtils
 import kotlinx.android.synthetic.main.camera_fragment.*
 
 abstract class CameraActivity : AppCompatActivity(),
-    OnImageAvailableListener,
-    Camera.PreviewCallback{
+    OnImageAvailableListener{
     private var classScores: Map<String, Int> = mapOf( "Bottle" to 35, "Bottle cap" to 10,
             "Can" to 15, "Carton" to 7, "Cup" to 15, "Other" to 13, "Paper" to 24,
             "Plastic bag + wrapper" to 43, "Straw" to 21, "Styrofoam piece" to 11)
@@ -48,14 +46,11 @@ abstract class CameraActivity : AppCompatActivity(),
     val isDebug = false
     private var handler: Handler? = null
     private var handlerThread: HandlerThread? = null
-    private var useCamera2API = false
     private var isProcessingFrame = false
     private val yuvBytes = arrayOfNulls<ByteArray>(3)
     private var rgbBytes: IntArray? = null
     private var yRowStride = 0
 
-    protected var luminanceStride = 0
-        private set
     private var postInferenceCallback: Runnable? = null
     private var imageConverter: Runnable? = null
     private var bottomSheetLayout: LinearLayout? = null
@@ -183,43 +178,6 @@ abstract class CameraActivity : AppCompatActivity(),
     protected fun getRgbBytes(): IntArray? {
         imageConverter!!.run()
         return rgbBytes
-    }
-
-
-    override fun onPreviewFrame(
-        bytes: ByteArray?,
-        camera: Camera
-    ) {
-        if (isProcessingFrame) {
-            return
-        }
-        try {
-            // Initialize the storage bitmaps once when the resolution is known.
-            if (rgbBytes == null) {
-                val previewSize =
-                    camera.parameters.previewSize
-                previewHeight = previewSize.height
-                previewWidth = previewSize.width
-                rgbBytes = IntArray(previewWidth * previewHeight)
-                onPreviewSizeChosen(Size(previewSize.width, previewSize.height), 90)
-            }
-        } catch (e: java.lang.Exception) {
-            return
-        }
-        isProcessingFrame = true
-        yuvBytes[0] = bytes
-        yRowStride = previewWidth
-        imageConverter = Runnable {
-            ImageUtils.convertYUV420SPToARGB8888(
-                bytes!!, previewWidth, previewHeight,
-                rgbBytes!!
-            )
-        }
-        postInferenceCallback = Runnable {
-            camera.addCallbackBuffer(bytes)
-            isProcessingFrame = false
-        }
-        processImage()
     }
 
 
@@ -353,18 +311,6 @@ abstract class CameraActivity : AppCompatActivity(),
         )
     }
 
-    // Returns true if the device supports the required hardware level, or better.
-    private fun isHardwareLevelSupported(
-        characteristics: CameraCharacteristics, requiredLevel: Int
-    ): Boolean {
-        val deviceLevel =
-            characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-        return if (deviceLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-            requiredLevel == deviceLevel
-        } else requiredLevel <= deviceLevel
-        // deviceLevel is not LEGACY, can use numerical sort
-    }
-
     private fun chooseCamera(): String? {
         val manager =
             getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -381,11 +327,6 @@ abstract class CameraActivity : AppCompatActivity(),
                 characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
                     ?: continue
 
-                useCamera2API = (facing == CameraCharacteristics.LENS_FACING_EXTERNAL
-                        || isHardwareLevelSupported(
-                    characteristics, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
-                ))
-                Log.d(javaClass.name, "Camera API lv2?: $useCamera2API")
                 return cameraId
             }
         } catch (e: CameraAccessException) {
@@ -404,8 +345,7 @@ abstract class CameraActivity : AppCompatActivity(),
 
     protected open fun setFragment() {
         val cameraId = chooseCamera()
-        var fragment : Fragment
-//        if (useCamera2API) {
+        val fragment : Fragment
             val callback = object: CameraFragment.ConnectionCallback {
                 override fun onPreviewSizeChosen(size: Size?, cameraRotation: Int) {
                     previewHeight = size!!.height
@@ -421,10 +361,6 @@ abstract class CameraActivity : AppCompatActivity(),
             )
             camera2Fragment!!.setCamera(cameraId)
             fragment = camera2Fragment
-//        } else {
-//            fragment =
-//                LegacyCameraConnectionFragment(this, getLayoutId(), getDesiredPreviewFrameSize()!!)
-//        }
         supportFragmentManager.beginTransaction().replace(R.id.container,fragment).addToBackStack("name").commit()
     }
 

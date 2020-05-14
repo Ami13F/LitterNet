@@ -13,7 +13,7 @@ import com.kotlinapp.entities.PasswordState
 import com.kotlinapp.R
 import com.kotlinapp.auth.data.AuthRepository
 
-class ItemEditViewModel(application: Application) : AndroidViewModel(application) {
+class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
     private val mutableFetching = MutableLiveData<Boolean>().apply { value = false }
     private val mutableCompleted = MutableLiveData<Boolean>().apply { value = false }
@@ -30,7 +30,7 @@ class ItemEditViewModel(application: Application) : AndroidViewModel(application
     val fetchingError: LiveData<Exception> = mutableException
     val completed: LiveData<Boolean> = mutableCompleted
 
-    val itemRepository: PlayerRepository
+    private val itemRepository: PlayerRepository
 
     init {
         val itemDao = LitterDatabase.getDatabase(application, viewModelScope).itemDao()

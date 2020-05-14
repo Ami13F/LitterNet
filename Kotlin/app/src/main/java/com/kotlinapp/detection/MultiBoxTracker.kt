@@ -12,10 +12,11 @@ import com.kotlinapp.design.LabelsBorderText
 import com.kotlinapp.utils.ImageUtils
 import com.kotlinapp.utils.TAG
 import java.util.*
+import kotlin.math.min
 
 
 class MultiBoxTracker(context: Context) {
-    val screenRects: MutableList<Pair<Float, RectF>> =
+    private val screenRects: MutableList<Pair<Float, RectF>> =
         LinkedList()
     private val availableColors: Queue<Int> = LinkedList()
     val trackedObjects: MutableList<TrackedRecognition> =
@@ -65,7 +66,7 @@ class MultiBoxTracker(context: Context) {
     @Synchronized
     fun draw(canvas: Canvas) {
         val rotated = sensorOrientation % 180 == 90
-        val multiplier = Math.min(
+        val multiplier = min(
             canvas.height / (if (rotated) frameWidth else frameHeight).toFloat(),
             canvas.width / (if (rotated) frameHeight else frameWidth).toFloat()
         )
@@ -82,7 +83,7 @@ class MultiBoxTracker(context: Context) {
             frameToCanvasMatrix!!.mapRect(trackedPos)
             boxPaint.color = recognition.color
             val cornerSize =
-                Math.min(trackedPos.width(), trackedPos.height()) / 8.0f
+                min(trackedPos.width(), trackedPos.height()) / 8.0f
             canvas.drawRoundRect(trackedPos, cornerSize, cornerSize, boxPaint)
             val labelString =
                 if (!TextUtils.isEmpty(recognition.title)) String.format(

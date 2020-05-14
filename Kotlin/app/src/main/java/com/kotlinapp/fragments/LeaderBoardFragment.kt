@@ -9,21 +9,17 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.findNavController
 import com.kotlinapp.PlayersListAdapter
 import com.kotlinapp.R
-import com.kotlinapp.auth.data.AuthRepository
-import com.kotlinapp.localPersistence.ItemDao
 import com.kotlinapp.utils.TAG
-import com.kotlinapp.viewModels.ItemsListViewModel
+import com.kotlinapp.viewModels.LeaderboardViewModel
 import kotlinx.android.synthetic.main.item_list_fragment.*
 
 
 class LeaderBoardFragment : Fragment() {
 
     private lateinit var itemListAdapter: PlayersListAdapter
-    private lateinit var itemsModel: ItemsListViewModel
-    private var leaders = emptyList<ItemDao.BoardItem>()
+    private lateinit var itemsModel: LeaderboardViewModel
     private var isCountrySelected = false
 
     override fun onCreateView(
@@ -53,7 +49,7 @@ class LeaderBoardFragment : Fragment() {
     private fun setupItemList() {
         itemListAdapter = PlayersListAdapter(this)
         item_list.adapter = itemListAdapter
-        itemsModel = ViewModelProviders.of(this).get(ItemsListViewModel::class.java)
+        itemsModel = ViewModelProviders.of(this).get(LeaderboardViewModel::class.java)
 
         itemsModel.players.observe(this, Observer { items ->
             Log.v(TAG, "update items")

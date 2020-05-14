@@ -17,7 +17,6 @@
         app:itemIconTint="@color/cardview_light_background"
         app:menu="@menu/menu_main" />
 
-
     <include layout="@layout/content_main" />
 
 

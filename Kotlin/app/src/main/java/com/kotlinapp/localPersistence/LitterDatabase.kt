@@ -51,9 +51,9 @@ abstract class LitterDatabase : RoomDatabase(){
                     }
                 }
             }
-            suspend fun populateDatabase(itemDao: ItemDao) {
-                itemDao.deleteAll()
-            }
+//            suspend fun populateDatabase(itemDao: ItemDao) {
+//                itemDao.deleteAll()
+//            }
         }
     }
 }

@@ -30,7 +30,7 @@ import com.kotlinapp.utils.ImageUtils.REQUEST_CAMERA
 import com.kotlinapp.utils.ImageUtils.galleryIntent
 import com.kotlinapp.utils.Permissions
 import com.kotlinapp.utils.TAG
-import com.kotlinapp.viewModels.ItemEditViewModel
+import com.kotlinapp.viewModels.ProfileViewModel
 import kotlinx.android.synthetic.main.create_account_fragment.*
 import kotlinx.android.synthetic.main.create_account_fragment.progress
 import kotlinx.android.synthetic.main.profile_fragment.*
@@ -39,7 +39,7 @@ import java.io.IOException
 @SuppressLint("SetTextI18n")
 class ProfileFragment : Fragment() {
 
-    private lateinit var viewModel: ItemEditViewModel
+    private lateinit var viewModel: ProfileViewModel
 
     private var player: Player? = null
     private var user: User? = null
@@ -85,7 +85,7 @@ class ProfileFragment : Fragment() {
         Log.v(TAG, "onActivityCreated")
         Log.d(TAG, "Logggeed  ${AuthRepository.isLoggedIn}")
 
-        viewModel = ViewModelProviders.of(this).get(ItemEditViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(ProfileViewModel::class.java)
 
         setupViewModel()
         Log.d(TAG,"Setting initial values...")

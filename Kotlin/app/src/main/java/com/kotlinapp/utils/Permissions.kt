@@ -53,7 +53,7 @@ object Permissions {
                     alertBuilder.setMessage("Permission is necessary")
                     alertBuilder.setPositiveButton(
                         "yes"
-                    ) { dialog, which ->
+                    ) { _, _ ->
                         requestPermissions(
                             (context as Activity?)!!,
                             arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),

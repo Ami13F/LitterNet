@@ -8,14 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.kotlinapp.MainActivity
 import com.kotlinapp.R
-import com.kotlinapp.auth.data.AuthRepository
 import com.kotlinapp.core.Result
 import kotlinx.android.synthetic.main.login_fragment.*
 

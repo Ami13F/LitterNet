@@ -9,7 +9,6 @@ interface Classifier {
 
     fun setNumThreads(num_threads: Int)
 
-    /** An immutable result returned by a Classifier describing what was recognized.  */
     class Recognition(
         /**
          * A unique identifier for what has been recognized. Specific to the class, not the instance of

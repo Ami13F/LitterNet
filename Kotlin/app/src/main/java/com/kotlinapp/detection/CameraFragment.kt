@@ -28,6 +28,8 @@ import com.kotlinapp.utils.Permissions
 import com.kotlinapp.utils.TAG
 import java.util.*
 import java.util.concurrent.Semaphore
+import kotlin.math.max
+import kotlin.math.min
 
 
 class CameraFragment private constructor(
@@ -48,8 +50,8 @@ class CameraFragment private constructor(
             width: Int,
             height: Int
         ): Size {
-            val minSize = Math.max(
-                Math.min(width, height),
+            val minSize = max(
+                min(width, height),
                 MINIMUM_PREVIEW_SIZE
             )
             val desiredSize = Size(width, height)
@@ -240,16 +242,6 @@ class CameraFragment private constructor(
         }
 
         override fun onSurfaceTextureUpdated(texture: SurfaceTexture) {}
-    }
-
-    /**
-     * Shows a [Toast] on the UI thread.
-     *
-     * @param text The message to show
-     */
-    private fun showToast(text: String) {
-        val activity = activity
-        activity?.runOnUiThread { Toast.makeText(activity, text, Toast.LENGTH_SHORT).show() }
     }
 
     override fun onCreateView(
@@ -444,7 +436,7 @@ class CameraFragment private constructor(
                     }
 
                     override fun onConfigureFailed(cameraCaptureSession: CameraCaptureSession) {
-                        showToast("Failed")
+                        Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
                     }
                 },
                 null
@@ -484,7 +476,7 @@ class CameraFragment private constructor(
         if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
             bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY())
             matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL)
-            val scale = Math.max(
+            val scale = max(
                 viewHeight.toFloat() / previewSize!!.height,
                 viewWidth.toFloat() / previewSize!!.width
             )
