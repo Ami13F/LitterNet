@@ -22,7 +22,7 @@ class DetectorActivity :
 
     private val inputSize = 416
     private val isQuantized = false
-    private val modelFileName = "tiny.tflite"
+    private val modelFileName = "yolov3.tflite"
     private val labelsFileName = "file:///android_asset/labels.txt"
 
     private val minConfidence = 0.4f

@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.kotlinapp.PlayersListAdapter
 import com.kotlinapp.R
 import com.kotlinapp.utils.TAG
@@ -49,35 +49,35 @@ class LeaderBoardFragment : Fragment() {
     private fun setupItemList() {
         itemListAdapter = PlayersListAdapter(this)
         item_list.adapter = itemListAdapter
-        itemsModel = ViewModelProviders.of(this).get(LeaderboardViewModel::class.java)
+        itemsModel = ViewModelProvider(this).get(LeaderboardViewModel::class.java)
 
-        itemsModel.players.observe(this, Observer { items ->
+        itemsModel.players.observe(viewLifecycleOwner, Observer { items ->
             Log.v(TAG, "update items")
             itemListAdapter.players = items
         })
 
-        itemsModel.users.observe(this, Observer { items ->
+        itemsModel.users.observe(viewLifecycleOwner, Observer { items ->
             Log.v(TAG, "update users")
             itemListAdapter.users = items
         })
-        itemsModel.leaderList.observe(this, Observer { items->
+        itemsModel.leaderList.observe(viewLifecycleOwner, Observer { items->
             Log.d(TAG, "Update leaders...")
             if(!isCountrySelected)
                 itemListAdapter.leaders = items
         })
 
-        itemsModel.leaderCountryList.observe(this, Observer { items->
+        itemsModel.leaderCountryList.observe(viewLifecycleOwner, Observer { items->
             Log.d(TAG, "Update leaders...")
             if(isCountrySelected)
                 itemListAdapter.leaders = items
         })
 
-        itemsModel.loading.observe(this, Observer { loading ->
+        itemsModel.loading.observe(viewLifecycleOwner, Observer { loading ->
             Log.v(TAG, "update loading")
             progress.visibility = if (loading) View.VISIBLE else View.GONE
         })
 
-        itemsModel.loadingError.observe(this, Observer { exception ->
+        itemsModel.loadingError.observe(viewLifecycleOwner, Observer { exception ->
             if (exception != null) {
                 Log.v(TAG, "update loading error")
                 val message = "Loading exception ${exception.message}"

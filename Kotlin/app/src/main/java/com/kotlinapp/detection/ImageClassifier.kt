@@ -7,6 +7,7 @@ import android.os.Trace
 import android.util.Log
 import com.kotlinapp.utils.TAG
 import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.gpu.GpuDelegate
 import java.io.BufferedReader
 import java.io.FileInputStream
 import java.io.IOException
@@ -179,7 +180,8 @@ class ImageClassifier private constructor() : Classifier {
             br.close()
             d.inputSize = inputSize
             try {
-                val opts = Interpreter.Options()
+                val delegate = GpuDelegate()
+                val opts = Interpreter.Options().addDelegate(delegate)
                 opts.setNumThreads(NUM_THREADS)
                 d.tfLite = Interpreter(
                     loadModelFile(

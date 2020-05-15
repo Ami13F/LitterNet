@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.MediaStore
@@ -16,7 +17,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.kotlinapp.R
 import com.kotlinapp.auth.data.User
@@ -52,7 +53,7 @@ class CreateAccountFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         Log.v(TAG, "onActivityCreated")
-        viewModel = ViewModelProviders.of(this).get(AccountViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(AccountViewModel::class.java)
 
         setupViewModel()
         setupValidation()
@@ -79,7 +80,7 @@ class CreateAccountFragment : Fragment() {
     }
 
     private fun setupValidation(){
-        viewModel.emailExists.observe(this, Observer {
+        viewModel.emailExists.observe(viewLifecycleOwner, Observer {
             if (it){
                 viewModel.validateCreateAccount(
                     emailField.text.toString(),
@@ -90,7 +91,7 @@ class CreateAccountFragment : Fragment() {
             }
         })
 
-        viewModel.userNameExists.observe(this, Observer {
+        viewModel.userNameExists.observe(viewLifecycleOwner, Observer {
             if(it){
                 viewModel.validateCreateAccount(
                     emailField.text.toString(),
@@ -101,7 +102,7 @@ class CreateAccountFragment : Fragment() {
             }
         })
 
-        viewModel.validFormState.observe(this, Observer { validState->
+        viewModel.validFormState.observe(viewLifecycleOwner, Observer { validState->
             saveAccountBtn.isEnabled = validState.isDataValid
 
             if(validState.emailError != null){
@@ -156,7 +157,7 @@ class CreateAccountFragment : Fragment() {
     }
 
     private fun setupViewModel() {
-        viewModel.completed.observe(this, Observer { completed ->
+        viewModel.completed.observe(viewLifecycleOwner, Observer { completed ->
             if (completed) {
                 Log.v(TAG, "Completed, navigate back")
                 Toast.makeText(this.activity, "Create account succeed", Toast.LENGTH_SHORT).show()
@@ -236,10 +237,11 @@ class CreateAccountFragment : Fragment() {
         var bitmap: Bitmap? = null
         if (data != null) {
             try {
-                bitmap = MediaStore.Images.Media.getBitmap(
-                    context!!.contentResolver,
-                    data.data
-                )
+                bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireContext().contentResolver, data.data!!))
+//                bitmap = MediaStore.Images.Media.getBitmap(
+//                    requireContext().contentResolver,
+//                    data.data
+//                )
             } catch (e: IOException) {
                 e.printStackTrace()
             }

@@ -51,10 +51,10 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.1.0-alpha10'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-rc01'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.1.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0-alpha02'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.2.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.2.2'
     implementation "com.squareup.retrofit2:retrofit:2.6.0"
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.4.0"
     implementation "com.squareup.retrofit2:converter-gson:2.6.0"
@@ -72,6 +72,7 @@ dependencies {
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
     implementation('org.tensorflow:tensorflow-lite:0.0.0-nightly')
     // This dependency adds the necessary TF op support.
+    implementation 'org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly'
     implementation 'org.tensorflow:tensorflow-lite-select-tf-ops:0.0.0-nightly'
 
     // For Country Picker

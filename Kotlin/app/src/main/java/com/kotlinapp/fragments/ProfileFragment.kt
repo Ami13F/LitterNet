@@ -16,7 +16,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.kotlinapp.R
 import com.kotlinapp.auth.data.AuthRepository
@@ -61,7 +61,7 @@ class ProfileFragment : Fragment() {
     ): View? {
         Log.v(TAG, "onCreateView")
         if(arguments != null){
-            val score = arguments!!.getString("Score")
+            val score = requireArguments().getString("Score")
             Log.d(TAG, "Score::::: $score")
         }
         return inflater.inflate(R.layout.profile_fragment, container, false)
@@ -72,7 +72,7 @@ class ProfileFragment : Fragment() {
         // get score from user game
         updateScore()
         //release resource
-        activity!!.intent.putExtra("Score",0)
+        requireActivity().intent.putExtra("Score",0)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -85,7 +85,7 @@ class ProfileFragment : Fragment() {
         Log.v(TAG, "onActivityCreated")
         Log.d(TAG, "Logggeed  ${AuthRepository.isLoggedIn}")
 
-        viewModel = ViewModelProviders.of(this).get(ProfileViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
 
         setupViewModel()
         Log.d(TAG,"Setting initial values...")
@@ -110,7 +110,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupPasswordState(){
-        viewModel.passwordState.observe(this, Observer {passState->
+        viewModel.passwordState.observe(viewLifecycleOwner, Observer {passState->
             saveEditBtn.isEnabled = passState.isValid
             if(passState.oldPasswordError != null){
                 oldPassword.error = getString(passState.oldPasswordError!!)
@@ -148,16 +148,16 @@ class ProfileFragment : Fragment() {
         scoreTotal.text = "Your score: $score"
         usernameText.text = "Hello, $username"
 
-        viewModel.playerUpdate.observe(this, Observer {player->
+        viewModel.playerUpdate.observe(viewLifecycleOwner, Observer {player->
             avatarEdit.setImageBitmap(ImageUtils.arrayToBitmap(AuthRepository.currentPlayer!!.avatar.data))
             this.player = player
         })
 
-        viewModel.fetching.observe(this, Observer { fetching ->
+        viewModel.fetching.observe(viewLifecycleOwner, Observer { fetching ->
             Log.v(TAG, "update fetching")
             progress.visibility = if (fetching) View.VISIBLE else View.GONE
         })
-        viewModel.fetchingError.observe(this, Observer { exception ->
+        viewModel.fetchingError.observe(viewLifecycleOwner, Observer { exception ->
             if (exception != null) {
                 Log.v(TAG, "update fetching error")
                 val message = "Fetching exception ${exception.message}"
@@ -167,7 +167,7 @@ class ProfileFragment : Fragment() {
                 }
             }
         })
-        viewModel.completed.observe(this, Observer { completed ->
+        viewModel.completed.observe(viewLifecycleOwner, Observer { completed ->
             if (completed) {
                 Log.v(TAG, "completed, navigate back")
                 if (this.activity != null) {
@@ -180,7 +180,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateScore(){
-        val obtainedScore = activity!!.intent.getIntExtra("Score",0)
+        val obtainedScore = requireActivity().intent.getIntExtra("Score",0)
         Log.d(TAG, "Score $obtainedScore")
         if(obtainedScore != 0 ){
             val score = AuthRepository.currentPlayer!!.score + obtainedScore
