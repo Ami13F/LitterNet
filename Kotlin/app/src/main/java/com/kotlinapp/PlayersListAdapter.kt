@@ -1,5 +1,6 @@
 package com.kotlinapp
 
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
@@ -10,6 +11,7 @@ import com.kotlinapp.auth.data.User
 import com.kotlinapp.localPersistence.ItemDao
 import com.kotlinapp.entities.Player
 import com.kotlinapp.utils.ImageUtils
+import com.kotlinapp.utils.TAG
 import kotlinx.android.synthetic.main.classament_view.view.*
 
 
@@ -41,6 +43,7 @@ class PlayersListAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (itemCount > 0) {
+            Log.d(TAG, "Size elements: $itemCount")
             val leader = leaders[position]
 
             holder.country.text = leader.country

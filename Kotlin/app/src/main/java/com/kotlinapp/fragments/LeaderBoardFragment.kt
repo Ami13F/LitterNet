@@ -50,7 +50,7 @@ class LeaderBoardFragment : Fragment() {
         itemListAdapter = PlayersListAdapter(this)
         item_list.adapter = itemListAdapter
         itemsModel = ViewModelProvider(this).get(LeaderboardViewModel::class.java)
-
+        //TODO: infinite scroll
         itemsModel.players.observe(viewLifecycleOwner, Observer { items ->
             Log.v(TAG, "update items")
             itemListAdapter.players = items

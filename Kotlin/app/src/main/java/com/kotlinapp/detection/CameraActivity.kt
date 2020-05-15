@@ -136,7 +136,7 @@ abstract class CameraActivity : AppCompatActivity(),
             val types = arrayOf<CharSequence>(
                 "Save score", "Try again"
             )
-            var score = 10
+            var score = 0
             for ( result in objectsDetected!!.trackedObjects.toList()){
                 Log.d(javaClass.name, "${result.title}")
                 Log.d(javaClass.name, "${classScores[result.title]}")

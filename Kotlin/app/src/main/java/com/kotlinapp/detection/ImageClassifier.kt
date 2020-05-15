@@ -54,7 +54,7 @@ class ImageClassifier private constructor() : Classifier {
         // Preprocess the image data from 0-255 int to normalized float based
         // on the provided parameters.
         bitmap!!.getPixels(intValues,0, bitmap.width,0,0, bitmap.width, bitmap.height)
-
+        //set the position to 0
         imgData!!.rewind()
 
         for (i in 0 until inputSize) {

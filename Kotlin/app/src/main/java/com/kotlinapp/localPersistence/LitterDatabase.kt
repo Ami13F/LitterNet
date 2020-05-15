@@ -47,13 +47,14 @@ abstract class LitterDatabase : RoomDatabase(){
                 super.onOpen(db)
                 INSTANCE?.let { database ->
                     scope.launch(Dispatchers.IO) {
-//                        populateDatabase(database.itemDao())
+                        populateDatabase(database.itemDao())
                     }
                 }
             }
-//            suspend fun populateDatabase(itemDao: ItemDao) {
-//                itemDao.deleteAll()
-//            }
+            suspend fun populateDatabase(itemDao: ItemDao) {
+                itemDao.deleteAllPlayers()
+                itemDao.deleteAllUser()
+            }
         }
     }
 }

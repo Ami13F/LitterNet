@@ -44,6 +44,9 @@ interface ItemDao {
     @Query("DELETE FROM Player where idPlayer=:id")
     suspend fun deleteOne(id: String)
 
-    @Query("DELETE FROM Player")
-    suspend fun deleteAll()
+    @Query("DELETE FROM Player where idPlayer!=0")
+    suspend fun deleteAllPlayers()
+
+    @Query("DELETE FROM User where id != 0")
+    suspend fun deleteAllUser()
 }

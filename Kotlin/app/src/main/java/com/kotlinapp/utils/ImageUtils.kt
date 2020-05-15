@@ -50,10 +50,11 @@ object ImageUtils {
     }
 
     fun  bitmapToArray(bitmap: Bitmap): ByteArray{
-        val bit = cropBitmap(bitmap)
+        var bit = cropBitmap(bitmap)
         val stream = ByteArrayOutputStream()
+        bit = Bitmap.createScaledBitmap(bit, 100, 100, true)
         bit.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-
+        bit.compress(Bitmap.CompressFormat.PNG, 100, stream)
         return stream.toByteArray()
     }
 
