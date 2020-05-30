@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.kotlinapp.auth.data.AuthRepository
 import com.kotlinapp.detection.DetectorActivity
@@ -31,6 +32,8 @@ class MainActivity : AppCompatActivity(),
 
         bottomNav = findViewById(R.id.bottom_navigation)
         bottomNav.setOnNavigationItemSelectedListener(this)
+        val navController = findNavController(R.id.nav_host_fragment)
+        bottomNav.setupWithNavController(navController = navController)
     }
 
     override fun onResume() {
@@ -55,21 +58,16 @@ class MainActivity : AppCompatActivity(),
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.navigate_out -> {
-                Log.d(TAG, "Logout")
-                AuthRepository.logout()
-                findNavController(R.id.nav_host_fragment).navigate(R.id.login_fragment)
-            }
-            R.id.navigate_leaderboard -> {
+            R.id.item_list_fragment -> {
                 Log.d(TAG, "Leaderboard")
                 findNavController(R.id.nav_host_fragment).navigate(R.id.item_list_fragment)
             }
-            R.id.navigate_openCamera -> {
+            R.id.camera_fragment -> {
                 Log.d(TAG, "Open Camera view...")
                 val intent = Intent(this, DetectorActivity::class.java)
                 startActivityForResult(intent, secondActivityRequestCode)
             }
-            R.id.navigate_profile -> {
+            R.id.item_edit_fragment -> {
                 Log.d(TAG, "Profile")
                 findNavController(R.id.nav_host_fragment).navigate(R.id.item_edit_fragment)
             }

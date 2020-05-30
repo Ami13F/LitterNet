@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.kotlinapp.R
 import com.kotlinapp.auth.data.AuthRepository
@@ -87,6 +88,11 @@ class ProfileFragment : Fragment() {
 
         viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
 
+        logoutBtn.setOnClickListener{
+            Log.d(TAG, "Logout")
+            AuthRepository.logout()
+            findNavController().navigate(R.id.login_fragment)
+        }
         setupViewModel()
         Log.d(TAG,"Setting initial values...")
         avatarEdit.setImageBitmap(ImageUtils.arrayToBitmap(AuthRepository.currentPlayer!!.avatar.data))

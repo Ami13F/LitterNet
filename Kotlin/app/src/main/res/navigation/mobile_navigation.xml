@@ -31,7 +31,6 @@
         android:label="@string/item_edit"
         tools:layout="@layout/camera_fragment" />
 
-
     <fragment
         android:id="@+id/create_account_fragment"
         android:name="com.kotlinapp.fragments.CreateAccountFragment"
