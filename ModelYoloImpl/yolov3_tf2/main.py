@@ -5,9 +5,9 @@ import numpy as np
 from yolov3 import YoloV3
 import os.path
 
-# physical_devices = tf.config.experimental.list_physical_devices('GPU')
-# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-# tf.config.experimental.set_memory_growth(physical_devices[0], True)
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 
 def detect_image(detect, class_names_file, model_size, model):
@@ -22,7 +22,8 @@ def detect_image(detect, class_names_file, model_size, model):
     img_raw = tf.image.decode_image(
         open(img_path, 'rb').read(), channels=3)
 
-    img = tf.expand_dims(img_raw, 0)  # create one more dimension for batch (1, 416, 416, 3)
+    # create one more dimension for batch (1, 416, 416, 3)
+    img = tf.expand_dims(img_raw, 0)
     print(img.shape)
     img = transform_images(img, model_size[0])  # 416 size
     # boxes, classes, scores, nums = model.predict(resized_frame)
@@ -34,15 +35,16 @@ def detect_image(detect, class_names_file, model_size, model):
 
     # image = np.squeeze(image)
     img = cv2.cvtColor(img_raw.numpy(), cv2.COLOR_RGB2BGR)
+    img = cv2.resize(img, dsize=(model_size[0], model_size[0]))  # 416 size
     img = draw_output(img, boxes, scores,
-                      classes, nums, class_names)
+                      classes, nums, class_names)    
     win_name = 'Detected objects'
     cv2.imshow(win_name, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
+    
     # For saving the result
-    cv2.imwrite(os.path.abspath('yolov3_tf2\\test\\test0.jpg'), img)
+    cv2.imwrite(os.path.abspath('yolov3_tf2\\img\\test-3.jpg'), img)
     print("Image saved....")
 
 
@@ -66,6 +68,8 @@ def convert(model, model_name):
         tf.lite.OpsSet.TFLITE_BUILTINS,
         tf.lite.OpsSet.SELECT_TF_OPS
     ]
+    # For old convertor TOCO
+    converter.experimental_new_converter = False
 
     # converter.experimental_new_converter = True
 
@@ -78,20 +82,19 @@ def convert(model, model_name):
 
 
 if __name__ == '__main__':
+    print("start...")
     # class_names_file = os.path.abspath("yolov3_tf2\cfg\\taco-10.names")
     # cfg_file = os.path.abspath("yolov3_tf2\cfg\yolov3-10b-angle.cfg")
     # weights_file = os.path.abspath(
     #     "yolov3_tf2\weights\yolov3-taco.tf")
+    label_names = "taco-10.names"
+    cfg_name = "yolov3-10b-angle.cfg"
+    weights_filedest = "yolov3.tf"
+    class_names_file = os.path.abspath("yolov3_tf2\cfg\\" + label_names)
+    cfg_file = os.path.abspath("yolov3_tf2\cfg\\" + cfg_name)
 
-    class_names_file = os.path.abspath("yolov3_tf2\cfg\\taco-10.names")
-    cfg_file = os.path.abspath("yolov3_tf2\cfg\\yolov3-10b-angle.cfg")
-    # weights_file = os.path.abspath(
-    #     "yolov3_tf2\checkpoints\yolov3.tf")
-
-    # class_names_file = os.path.abspath("yolov3_tf2\cfg\coco.names")
-    # cfg_file = os.path.abspath("yolov3_tf2\cfg\yolov3-tiny-prn.cfg")
     weights_file = os.path.abspath(
-        "yolov3_tf2\weights\\yolov3.tf")
+        "yolov3_tf2\weights\\" + weights_filedest)
 
     model_size = (416, 416, 3)
     num_classes = 10
@@ -101,8 +104,8 @@ if __name__ == '__main__':
     confidence_threshold = 0.3
 
     # Change parameters value for different run modes
-    detect = True
-    conversion = False
+    detect = False
+    conversion = True
 
     yolo = YoloV3(cfg_file, model_size, num_classes,
                   iou_threshold, confidence_threshold)
@@ -114,12 +117,12 @@ if __name__ == '__main__':
     detect_image(detect, class_names_file, model_size, model)
 
     if conversion:
-        tflite_model_name = "tiny-prn.tflite"
+        tflite_model_name = "yolov3.tflite"
         # save the model as .pb
         print("Start saving model as pb....")
         tf.saved_model.save(model, 'saved')
-        model.save('model.h5')
+        # model.save('model.h5')
         # # Create a converter and tflite model
         print("End model conversion as pb....")
-        tflite_model_name = "yolov3.tflite"
         convert(model, tflite_model_name)
+    

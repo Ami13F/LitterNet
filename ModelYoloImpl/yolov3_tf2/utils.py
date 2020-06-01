@@ -48,10 +48,10 @@ def resize_image(inputs, model_size):
     return inputs
 
 
-def transform_images(val, size):
-    val = tf.image.resize(val, (size, size))
-    val = val / 255
-    return val
+def transform_images(inputs, size):
+    inputs = tf.image.resize(inputs, (size, size))
+    inputs = inputs / 255
+    return inputs
 
 
 def load_class_names(file_name):
@@ -78,8 +78,8 @@ def output_boxes(inputs, model_size, max_output_size, max_output_size_per_class,
     bottom_right_x = center_x + width / 2.0
     bottom_right_y = center_y + height / 2.0
 
-    inputs = tf.concat([top_left_x, top_left_y, bottom_right_x,
-                        bottom_right_y, confidence, classes], axis=-1)
+    inputs = tf.concat([top_left_y, top_left_x, bottom_right_y,
+                        bottom_right_x, confidence, classes], axis=-1)
 
     boxes_dicts = non_max_suppresion(inputs, model_size, max_output_size,
                                      max_output_size_per_class, iou_threshold, confidence_threshold)
@@ -92,14 +92,16 @@ def draw_output(img, boxes, objectness, classes, nums, class_names):
     '''
     boxes, objectness, classes, nums = boxes[0], objectness[0], classes[0], nums[0]
     boxes = np.array(boxes)
-
     for i in range(int(nums)):
-        x1y1 = tuple(
-            (boxes[i, 0:2] * [img.shape[1], img.shape[0]]).astype(np.int32))
-        x2y2 = tuple(
-            (boxes[i, 2:4] * [img.shape[1], img.shape[0]]).astype(np.int32))
-        img = cv2.rectangle(img, (x1y1), (x2y2), (255, 0, 0), 2)
+        y1x1 = tuple(
+            (boxes[i, 1::-1] * [img.shape[0], img.shape[1]]).astype(np.int32))
+        y2x2 = tuple(
+            (boxes[i, 3:1:-1] * [img.shape[0], img.shape[1]]).astype(np.int32))
+        print("Boxesss: ", y2x2, "  ", y1x1)
+        img = cv2.rectangle(img, (y1x1), (y2x2), (255, 0, 0), 2)
+        img = cv2.drawMarker(img, (y1x1), (0, 255, 0))
+        img = cv2.drawMarker(img, (y2x2), (0, 255, 0))
         img = cv2.putText(img, '{} {:.4f}'.format(
             class_names[int(classes[i])], objectness[i]),
-            (x1y1), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 2)
+            (y1x1), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 2)
     return img

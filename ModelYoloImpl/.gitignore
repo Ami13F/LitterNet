@@ -3,3 +3,6 @@ img/
 weights/
 *.weights
 *.tflite
+__pycache__/**
+test/
+saved/**

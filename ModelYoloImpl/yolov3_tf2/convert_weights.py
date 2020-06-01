@@ -56,20 +56,19 @@ class WeightsConvertor():
 if __name__ == '__main__':
     # cfg_name = "yolov3-10b-angle.cfg"
     # weights_filename = "yolov3-taco.weights"
-    # weights_filedest = "yolov3-taco.tf"
+    # weights_filedest = "yolov3.tf"
 
     # cfg_name = "yolov3-coco.cfg"
     # weights_filename = "yolov3-coco.weights"
     # weights_filedest = "yolov3-coco.tf"
 
-    # cfg_name = "tiny.cfg"
-    # weights_filename = "yolov3-tiny.weights"
-    # weights_filedest = "yolov3-tiny.tf"
+    # cfg_name = "yolov3-10b-angle.cfg"
+    # weights_filename = "yolov3-taco.weights"
+    # weights_filedest = "yolov3.tf"
 
-    cfg_name = "yolov3-10b-angle.cfg"
-    # weights_filename = "yolov3-tiny-prn.weights"
-    weights_filename = "yolov3-taco.weights"
-    weights_filedest = "yolov3.tf"
+    cfg_name = "csresnext50-panet-spp-10.cfg"
+    weights_filename = "csresnext50-panet-spp-10b_0_best.weights"
+    weights_filedest = "csp.tf"
 
     cfg_file = os.path.abspath('yolov3_tf2\cfg\\' + cfg_name)
     weights_file = os.path.abspath('yolov3_tf2\weights\\' + weights_filename)
