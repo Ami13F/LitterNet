@@ -239,10 +239,6 @@ class CreateAccountFragment : Fragment() {
         if (data != null) {
             try {
                 bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireContext().contentResolver, data.data!!))
-//                bitmap = MediaStore.Images.Media.getBitmap(
-//                    requireContext().contentResolver,
-//                    data.data
-//                )
             } catch (e: IOException) {
                 e.printStackTrace()
             }

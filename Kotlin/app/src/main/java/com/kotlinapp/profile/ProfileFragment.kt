@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.MediaStore
@@ -267,10 +268,7 @@ class ProfileFragment : Fragment() {
         var bitmap: Bitmap? = null
         if (data != null) {
             try {
-                bitmap = MediaStore.Images.Media.getBitmap(
-                    requireContext().contentResolver,
-                    data.data
-                )
+                bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireContext().contentResolver, data.data!!))
             } catch (e: IOException) {
                 e.printStackTrace()
             }
