@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_profile"
-    android:backgroundTint="#2013B807"
+    android:background="@drawable/back"
     android:backgroundTintMode="src_over"
-    tools:context=".fragments.ProfileFragment">
+    android:backgroundTint="#359E9D9D"
+    tools:context=".profile.ProfileFragment">
 
     <ProgressBar
         android:id="@+id/progress"
@@ -38,9 +38,10 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_marginTop="100dp"
-        android:background="@drawable/round_corners"
+        android:layout_marginHorizontal="30dp"
+        android:background="@drawable/round_profile_box"
         android:layout_height="150dp"
-        android:backgroundTint="#C4217015">
+        android:backgroundTint="#CC2979FF">
 
         <TextView
             android:id="@+id/usernameText"
@@ -50,7 +51,7 @@
             android:layout_marginBottom="250dp"
             android:layout_marginTop="60dp"
             android:layout_gravity="center_horizontal"
-            android:textSize="24sp"
+            android:textSize="26sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:textColorHint="#FFFFFF" />
@@ -68,30 +69,17 @@
             android:textColorHint="#FFFFFF" />
 
     </FrameLayout>
-    >
-
-    <TextView
-        android:layout_width="match_parent"
-        android:text="Choose country"
-        android:layout_height="50dp"
-        android:layout_marginTop="250dp"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:fontFamily="monospace"
-        android:textSize="24sp"
-        android:textStyle="bold|italic"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#FFFFFF"
-        android:background="#45000000" />
 
     <com.hbb20.CountryCodePicker
         android:id="@+id/countryEdit"
         android:hint="Country"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginTop="300dp"
+        android:layout_marginTop="290dp"
         android:importantForAutofill="no"
+        android:layout_marginHorizontal="30dp"
         android:background="@drawable/round_corners"
+        android:backgroundTint="#5A2979FF"
         app:ccp_arrowColor="#FFFFFF"
         app:ccp_contentColor="#FFFFFF"
         app:ccp_defaultPhoneCode="40"
@@ -118,11 +106,13 @@
         android:textAlignment="center"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginTop="390dp"
+        android:layout_marginTop="395dp"
+        android:layout_marginHorizontal="30dp"
         android:importantForAutofill="no"
         android:inputType="textPassword"
         android:gravity="center"
-        android:background="#2DFFFFFF"
+        android:background="@drawable/round_corners"
+        android:backgroundTint="#5A2979FF"
         android:textColorHint="#FFFFFF"
         android:textColor="#FFFFFF" />
 
@@ -132,11 +122,13 @@
         android:textAlignment="center"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginTop="430dp"
+        android:layout_marginTop="440dp"
+        android:layout_marginHorizontal="30dp"
         android:importantForAutofill="no"
         android:inputType="textPassword"
         android:gravity="center"
-        android:background="#2DFFFFFF"
+        android:background="@drawable/round_corners"
+        android:backgroundTint="#5A2979FF"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF" />
 
@@ -146,30 +138,36 @@
         android:textAlignment="center"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginTop="470dp"
+        android:layout_marginTop="485dp"
+        android:layout_marginHorizontal="30dp"
         android:importantForAutofill="no"
         android:inputType="textPassword"
         android:gravity="center"
-        android:background="#2DFFFFFF"
+        android:background="@drawable/round_corners"
+        android:backgroundTint="#5A2979FF"
         android:textColor="#FFFFFF"
         android:textColorHint="#FFFFFF" />
 
     <Button
         android:id="@+id/saveEditBtn"
-        android:text="Save changed password "
+        android:text="Save new password "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="510dp"
+        android:layout_marginTop="540dp"
         android:background="@drawable/round_corners"
-        app:backgroundTint="#314FD6"
+        app:backgroundTint="#2979FF"
+        android:textColor="#ffffff"
         app:srcCompat="@android:drawable/ic_menu_save" />
 
     <Button
         android:id="@+id/logoutBtn"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="340dp"
-        android:background="@drawable/ic_power_settings_new_black_24dp"/>
+        android:layout_gravity="right"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/logout"
+        android:backgroundTint="#FFFFFF" />
 
 </FrameLayout>

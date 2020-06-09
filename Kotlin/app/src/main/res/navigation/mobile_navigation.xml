@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/item_list_fragment"
-        android:name="com.kotlinapp.fragments.LeaderBoardFragment"
+        android:name="com.kotlinapp.leaderboard.LeaderBoardFragment"
         android:label="@string/item_list"
         tools:layout="@layout/item_list_fragment" />
 
@@ -17,23 +17,21 @@
         android:label="@string/login"
         tools:layout="@layout/login_fragment" />
 
-
     <fragment
         android:id="@+id/item_edit_fragment"
-        android:name="com.kotlinapp.fragments.ProfileFragment"
+        android:name="com.kotlinapp.profile.ProfileFragment"
         android:label="@string/item_edit"
         tools:layout="@layout/profile_fragment" />
 
-
     <fragment
         android:id="@+id/camera_fragment"
-        android:name="com.kotlinapp.detection.CameraFragment"
+        android:name="com.kotlinapp.detection.ui.CameraFragment"
         android:label="@string/item_edit"
         tools:layout="@layout/camera_fragment" />
 
     <fragment
         android:id="@+id/create_account_fragment"
-        android:name="com.kotlinapp.fragments.CreateAccountFragment"
+        android:name="com.kotlinapp.auth.account.CreateAccountFragment"
         android:label="@string/item_edit"
         tools:layout="@layout/create_account_fragment" />
 </navigation>

@@ -10,11 +10,12 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.kotlinapp.MainActivity
 import com.kotlinapp.R
-import com.kotlinapp.core.Result
+import com.kotlinapp.auth.data.TokenHolder
+import com.kotlinapp.utils.Result
 import kotlinx.android.synthetic.main.login_fragment.*
 
 
@@ -29,14 +30,14 @@ class LoginFragment: Fragment() {
     }
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
         (activity as MainActivity).bottomNav.visibility = View.GONE
         setupLoginForm()
     }
 
     @SuppressLint("SetTextI18n")
     private fun setupLoginForm(){
-        viewModel.validateFormState.observe(this, Observer{
+        viewModel.validateFormState.observe(viewLifecycleOwner, Observer{
             val loginState = it?: return@Observer
             login.isEnabled = loginState.isDataValid
             if(loginState.usernameError != null){
@@ -46,10 +47,10 @@ class LoginFragment: Fragment() {
                 password.error = getString(loginState.passwordError)
             }
         })
-        viewModel.loginResult.observe(this,Observer{
+        viewModel.loginResult.observe(viewLifecycleOwner,Observer{
             val loginResult = it ?: return@Observer
             loading.visibility =View.GONE
-            if(loginResult is Result.Success<*>){
+            if(loginResult is Result.Success<TokenHolder>){
                 findNavController().navigate(R.id.item_edit_fragment)
                 (activity as MainActivity).bottomNav.visibility = View.VISIBLE
 

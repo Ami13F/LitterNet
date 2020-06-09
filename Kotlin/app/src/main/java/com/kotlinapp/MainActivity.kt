@@ -6,12 +6,14 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.kotlinapp.auth.data.AuthRepository
-import com.kotlinapp.detection.DetectorActivity
+import com.kotlinapp.core.AppPreferences
+import com.kotlinapp.detection.ui.DetectorActivity
+import com.kotlinapp.utils.Permissions
 import com.kotlinapp.utils.TAG
 
 
@@ -29,11 +31,14 @@ class MainActivity : AppCompatActivity(),
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
         // Hide the status bar.
         actionBar?.hide()
+        AppPreferences.init(this)
 
         bottomNav = findViewById(R.id.bottom_navigation)
-        bottomNav.setOnNavigationItemSelectedListener(this)
+
         val navController = findNavController(R.id.nav_host_fragment)
         bottomNav.setupWithNavController(navController = navController)
+
+        bottomNav.setOnNavigationItemSelectedListener(this)
     }
 
     override fun onResume() {
@@ -49,6 +54,7 @@ class MainActivity : AppCompatActivity(),
             val score = intent.getIntExtra("Score", 0)
             Log.d(javaClass.name, "Score from activity $score")
         }
+        bottomNav.menu.findItem(R.id.item_edit_fragment).isChecked = true
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -57,6 +63,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        Log.d(localClassName,"Item Selected...")
         when (item.itemId) {
             R.id.item_list_fragment -> {
                 Log.d(TAG, "Leaderboard")
@@ -64,8 +71,13 @@ class MainActivity : AppCompatActivity(),
             }
             R.id.camera_fragment -> {
                 Log.d(TAG, "Open Camera view...")
-                val intent = Intent(this, DetectorActivity::class.java)
-                startActivityForResult(intent, secondActivityRequestCode)
+                if(Permissions.checkPermission(this)){
+                    val intent = Intent(this, DetectorActivity::class.java)
+                    startActivityForResult(intent, secondActivityRequestCode)
+                }else{
+                    val t = Toast.makeText(this,"You have to give permissions first", Toast.LENGTH_SHORT)
+                    t.show()
+                }
             }
             R.id.item_edit_fragment -> {
                 Log.d(TAG, "Profile")

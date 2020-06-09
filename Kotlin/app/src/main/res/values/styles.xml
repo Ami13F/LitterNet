@@ -13,4 +13,11 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="ActiveText">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+    <style name="InactiveText">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>

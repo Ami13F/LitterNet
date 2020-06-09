@@ -27,9 +27,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center|bottom"
         android:layout_marginBottom="100dp"
-        app:backgroundTint="#9B106810"
+        app:backgroundTint="#2979FF"
         app:maxImageSize="30dp"
-        app:rippleColor="#9C106810" />
+        app:rippleColor="#2979FF" />
 
     <include
         android:id="@+id/bottom_sheet_layout"

@@ -10,7 +10,7 @@ import com.kotlinapp.R
 import com.kotlinapp.auth.data.AuthRepository
 import com.kotlinapp.auth.data.TokenHolder
 import com.kotlinapp.utils.TAG
-import com.kotlinapp.core.Result
+import com.kotlinapp.utils.Result
 import kotlinx.coroutines.launch
 
 class LoginViewModel: ViewModel() {

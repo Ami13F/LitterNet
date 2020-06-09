@@ -4,22 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_profile"
-    android:backgroundTint="#2013B807"
+    android:background="@drawable/background_profile2"
     android:backgroundTintMode="src_over"
-    tools:context=".fragments.LeaderBoardFragment"
-    >
+    android:backgroundTint="#359E9D9D"
+    tools:context=".leaderboard.LeaderBoardFragment">
 
     <ProgressBar
         android:id="@+id/progress"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <Button
@@ -27,26 +26,32 @@
         android:layout_width="210dp"
         android:layout_height="40dp"
         android:text="General"
-        android:background="#00B0FF"
-        tools:layout_editor_absoluteX="0dp"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:gravity="center"
+        android:background="@drawable/button_border"
+        android:textColor="#ffffff"
+        android:clickable="true"
+        app:layout_constraintRight_toLeftOf="@id/myCountryBtn"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/myCountryBtn"
         android:layout_width="200dp"
         android:layout_height="40dp"
+        android:gravity="center"
         android:text="MyCountry"
-        android:background="#00B0FF"
+        android:background="@drawable/button_border"
+        android:textColor="#ffffff"
+        android:clickable="true"
+        android:typeface="normal"
         app:layout_constraintLeft_toRightOf="@id/generalBtn"
-        app:layout_constraintTop_toTopOf="parent"/>
-
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/item_list"
-        app:layoutManager="LinearLayoutManager"
         android:layout_width="match_parent"
         android:layout_height="620dp"
+        app:layoutManager="LinearLayoutManager"
         app:layout_constraintTop_toBottomOf="@id/generalBtn" />
 
 

@@ -1,3 +1,58 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:030cb7ccc758d95a5f523cb08400d7db41b36f2a010fb64297552d4a5e40040e
-size 2001
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/username"
+        android:textColor="#FFFFFF"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:textAppearance="?attr/textAppearanceListItem"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_goneMarginLeft="5dp" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/img"
+        app:cardCornerRadius="50dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/colorPrimaryDark"
+        android:theme="@style/Theme.MaterialComponents.Light"
+        app:layout_constraintLeft_toRightOf="@+id/username">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:contentDescription="@string/person"
+            android:src="@drawable/personicon"
+           />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/country"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:layout_margin="@dimen/text_margin"
+        android:textAppearance="?attr/textAppearanceListItem"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/img" />
+
+    <TextView
+        android:id="@+id/score"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:layout_margin="@dimen/text_margin"
+        android:textAppearance="?attr/textAppearanceListItem"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/country" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

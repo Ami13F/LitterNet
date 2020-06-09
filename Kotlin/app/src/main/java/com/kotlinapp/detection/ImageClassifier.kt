@@ -8,6 +8,7 @@ import android.util.Log
 import com.kotlinapp.utils.TAG
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.GpuDelegate
+import org.tensorflow.lite.nnapi.NnApiDelegate
 import java.io.BufferedReader
 import java.io.FileInputStream
 import java.io.IOException
@@ -169,6 +170,7 @@ class ImageClassifier private constructor() : Classifier {
             val d = ImageClassifier()
             val actualFilename =
                 labelFilename.split("file:///android_asset/").toTypedArray()[1]
+            Log.d(TAG, "filenamee: "+assetManager.locales.toString())
             val labelsInput = assetManager.open(actualFilename)
             val br =
                 BufferedReader(InputStreamReader(labelsInput))
@@ -181,6 +183,11 @@ class ImageClassifier private constructor() : Classifier {
             d.inputSize = inputSize
             try {
                 val delegate = GpuDelegate()
+                val delegate2 = NnApiDelegate()
+                val tfliteOptions = Interpreter.Options()
+                tfliteOptions.addDelegate(delegate2)
+                tfliteOptions.addDelegate(delegate)
+
                 val opts = Interpreter.Options().addDelegate(delegate)
                 opts.setNumThreads(NUM_THREADS)
                 d.tfLite = Interpreter(

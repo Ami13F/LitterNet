@@ -3,7 +3,7 @@ package com.kotlinapp.utils
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 
-import com.kotlinapp.entities.AvatarHolder
+import com.kotlinapp.model.AvatarHolder
 
 
 class AvatarConverter {

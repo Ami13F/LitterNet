@@ -15,6 +15,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -34,6 +35,13 @@ android {
     lintOptions {
         abortOnError false
     }
+    sourceSets {
+        main {
+            assets {
+                srcDirs 'src/main/assets', 'src/androidTest/assets', 'src/antroidTest/assets'
+            }
+        }
+    }
 
     repositories {
         maven { url "https://jitpack.io" }
@@ -52,9 +60,12 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0-alpha10'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0-alpha02'
+    //Nav controller
     implementation 'androidx.navigation:navigation-fragment-ktx:2.2.2'
     implementation 'androidx.navigation:navigation-ui-ktx:2.2.2'
+
     implementation "com.squareup.retrofit2:retrofit:2.6.0"
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.4.0"
     implementation "com.squareup.retrofit2:converter-gson:2.6.0"
@@ -66,7 +77,6 @@ dependencies {
     kapt "androidx.room:room-compiler:2.2.1"
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
 
-
     //Tflite dependencies
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
@@ -77,4 +87,10 @@ dependencies {
 
     // For Country Picker
     implementation 'com.hbb20:ccp:2.3.8'
+
+    // Tests
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.google.truth:truth:1.0.1'
 }

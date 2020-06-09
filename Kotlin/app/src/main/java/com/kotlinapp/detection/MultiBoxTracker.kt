@@ -8,7 +8,7 @@ import android.text.TextUtils
 import android.util.Log
 import android.util.Pair
 import android.util.TypedValue
-import com.kotlinapp.design.LabelsBorderText
+import com.kotlinapp.utils.ui.LabelsBorderText
 import com.kotlinapp.utils.ImageUtils
 import com.kotlinapp.utils.TAG
 import java.util.*

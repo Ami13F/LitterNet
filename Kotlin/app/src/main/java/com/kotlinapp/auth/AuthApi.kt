@@ -4,8 +4,8 @@ import android.util.Log
 import com.kotlinapp.auth.data.TokenHolder
 import com.kotlinapp.auth.data.User
 import com.kotlinapp.core.Api
-import com.kotlinapp.core.Result
-import com.kotlinapp.entities.ResponseEntity
+import com.kotlinapp.utils.Result
+import com.kotlinapp.auth.data.ResponseEntity
 import com.kotlinapp.utils.TAG
 import retrofit2.http.*
 import retrofit2.Call
@@ -43,7 +43,7 @@ object AuthApi {
     }
      val authService:AuthService = Api.retrofit.create(AuthService::class.java)
 
-    suspend fun login(user: User): Result<TokenHolder>{
+    suspend fun login(user: User): Result<TokenHolder> {
         return try{
             Result.Success(authService.login(user))
         }catch(e: Exception){
@@ -51,14 +51,14 @@ object AuthApi {
         }
     }
 
-    suspend fun findOne(email: String): Result<User>{
+    suspend fun findOne(email: String): Result<User> {
         return try{
             Result.Success(authService.findOne(email))
         }catch(e: Exception){
             Result.Error(e)
         }
     }
-    suspend fun createAccount(user: User): Result<ResponseEntity>{
+    suspend fun createAccount(user: User): Result<ResponseEntity> {
         return try{
             val us = authService.createAccount(user)
             Log.d(TAG,"User account is... $us")

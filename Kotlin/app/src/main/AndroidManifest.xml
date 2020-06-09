@@ -41,7 +41,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.kotlinapp.detection.DetectorActivity"
+        <activity android:name="com.kotlinapp.detection.ui.DetectorActivity"
             android:screenOrientation="fullSensor">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER"/>

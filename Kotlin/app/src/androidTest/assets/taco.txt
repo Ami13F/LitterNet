@@ -1,0 +1,10 @@
+Bottle
+Bottle cap
+Can
+Carton
+Cup
+Other
+Paper
+Plastic bag + wrapper
+Straw
+Styrofoam piece
