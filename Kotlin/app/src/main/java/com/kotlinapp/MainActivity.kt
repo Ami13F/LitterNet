@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(),
             val score = intent.getIntExtra("Score", 0)
             Log.d(javaClass.name, "Score from activity $score")
         }
-        bottomNav.menu.findItem(R.id.item_edit_fragment).isChecked = true
+        bottomNav.menu.findItem(R.id.profile_fragment).isChecked = true
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -65,9 +65,9 @@ class MainActivity : AppCompatActivity(),
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         Log.d(localClassName,"Item Selected...")
         when (item.itemId) {
-            R.id.item_list_fragment -> {
+            R.id.leaderboard_fragment -> {
                 Log.d(TAG, "Leaderboard")
-                findNavController(R.id.nav_host_fragment).navigate(R.id.item_list_fragment)
+                findNavController(R.id.nav_host_fragment).navigate(R.id.leaderboard_fragment)
             }
             R.id.camera_fragment -> {
                 Log.d(TAG, "Open Camera view...")
@@ -79,9 +79,9 @@ class MainActivity : AppCompatActivity(),
                     t.show()
                 }
             }
-            R.id.item_edit_fragment -> {
+            R.id.profile_fragment -> {
                 Log.d(TAG, "Profile")
-                findNavController(R.id.nav_host_fragment).navigate(R.id.item_edit_fragment)
+                findNavController(R.id.nav_host_fragment).navigate(R.id.profile_fragment)
             }
             else -> super.onOptionsItemSelected(item)
         }

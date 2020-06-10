@@ -41,7 +41,7 @@ class CameraFragment private constructor(
 ) : Fragment() {
     companion object {
 
-        private const val MINIMUM_PREVIEW_SIZE = 320
+        private const val MINIMUM_PREVIEW_SIZE = 416
 
         /** Conversion from screen rotation to JPEG orientation.  */
         private val ORIENTATION_MOOD = SparseIntArray()
@@ -279,7 +279,6 @@ class CameraFragment private constructor(
 
     /** Sets up member variables related to camera.  */
     private fun setUpCameraOutputs() {
-        val activity = activity
         val manager =
             requireActivity().getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
@@ -315,7 +314,6 @@ class CameraFragment private constructor(
     private fun openCamera(width: Int, height: Int) {
         setUpCameraOutputs()
         configureTransform(width, height)
-        val activity = activity
         val manager =
             requireActivity().getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {

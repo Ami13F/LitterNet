@@ -7,6 +7,7 @@
     android:background="@drawable/background_profile2"
     android:backgroundTintMode="src_over"
     android:backgroundTint="#359E9D9D"
+    android:paddingBottom="56dp"
     tools:context=".leaderboard.LeaderBoardFragment">
 
     <ProgressBar
@@ -23,13 +24,14 @@
 
     <Button
         android:id="@+id/generalBtn"
-        android:layout_width="210dp"
+        android:layout_width="200dp"
         android:layout_height="40dp"
         android:text="General"
         android:gravity="center"
         android:background="@drawable/button_border"
         android:textColor="#ffffff"
         android:clickable="true"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/myCountryBtn"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -43,6 +45,7 @@
         android:textColor="#ffffff"
         android:clickable="true"
         android:typeface="normal"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toRightOf="@id/generalBtn"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -50,9 +53,9 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/item_list"
         android:layout_width="match_parent"
-        android:layout_height="620dp"
+        android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/generalBtn" />
+        android:layout_marginTop="40dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -32,7 +32,6 @@ import com.kotlinapp.MainActivity
 import com.kotlinapp.R
 import com.kotlinapp.detection.MultiBoxTracker
 import com.kotlinapp.utils.ImageUtils
-import com.kotlinapp.utils.Permissions
 import kotlinx.android.synthetic.main.camera_fragment.*
 
 abstract class CameraActivity : AppCompatActivity(),

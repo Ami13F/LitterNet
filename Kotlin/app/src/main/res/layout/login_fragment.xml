@@ -16,7 +16,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="150dp"
         android:layout_marginEnd="24dp"
-        android:text="a@a.com"
+        android:text="admin@gmail.com"
         android:hint="@string/username"
         android:textAlignment="center"
         android:background="@drawable/round_corners"

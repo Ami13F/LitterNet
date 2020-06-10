@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/back"
     android:backgroundTintMode="src_over"
-    android:backgroundTint="#359E9D9D"
+    android:backgroundTint="#769E9D9D"
     tools:context=".profile.ProfileFragment">
 
     <ProgressBar
@@ -81,6 +81,7 @@
         android:background="@drawable/round_corners"
         android:backgroundTint="#5A2979FF"
         app:ccp_arrowColor="#FFFFFF"
+        app:ccpDialog_showCloseIcon="true"
         app:ccp_contentColor="#FFFFFF"
         app:ccp_defaultPhoneCode="40"
         app:ccp_showFullName="true"
@@ -153,11 +154,11 @@
         android:text="Save new password "
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="540dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="120dp"
         android:background="@drawable/round_corners"
-        app:backgroundTint="#2979FF"
         android:textColor="#ffffff"
+        app:backgroundTint="#2979FF"
         app:srcCompat="@android:drawable/ic_menu_save" />
 
     <Button

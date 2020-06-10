@@ -16,10 +16,12 @@ interface ItemDao {
     @Query("SELECT * from User")
     fun getAllUsers(): LiveData<List<User>>
 
-    @Query("SELECT User.username, Player.country, Player.avatar, Player.score from Player JOIN User on User.id=Player.idPlayer order by Player.score DESC")// ,
+    @Query("""SELECT User.username, Player.country, Player.avatar, Player.score from Player
+            JOIN User on User.id=Player.idPlayer order by Player.score DESC""")
     fun getSortedEntities(): LiveData<List<BoardItem>>
 
-    @Query("SELECT User.username, Player.country, Player.avatar, Player.score from Player JOIN User on User.id=Player.idPlayer where Player.country=:country order by Player.score DESC")// ,
+    @Query("""SELECT User.username, Player.country, Player.avatar, Player.score from Player
+            JOIN User on User.id=Player.idPlayer where Player.country=:country order by Player.score DESC""")
     fun getSortedByCountry(country: String): LiveData<List<BoardItem>>
 
     @Query("SELECT * FROM Player WHERE idPlayer=:id ")

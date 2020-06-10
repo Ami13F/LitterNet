@@ -51,7 +51,7 @@ class LoginFragment: Fragment() {
             val loginResult = it ?: return@Observer
             loading.visibility =View.GONE
             if(loginResult is Result.Success<TokenHolder>){
-                findNavController().navigate(R.id.item_edit_fragment)
+                findNavController().navigate(R.id.profile_fragment)
                 (activity as MainActivity).bottomNav.visibility = View.VISIBLE
 
             }else if(loginResult is Result.Error){

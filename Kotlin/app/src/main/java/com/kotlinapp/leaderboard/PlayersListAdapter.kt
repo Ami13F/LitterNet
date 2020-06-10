@@ -1,14 +1,17 @@
 package com.kotlinapp.leaderboard
 
+import android.graphics.Color
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.kotlinapp.R
 import com.kotlinapp.auth.data.User
+import com.kotlinapp.core.AppPreferences
 import com.kotlinapp.core.persistence.ItemDao
 import com.kotlinapp.model.Player
 import com.kotlinapp.utils.ImageUtils
@@ -46,7 +49,11 @@ class PlayersListAdapter(
         if (itemCount > 0) {
             Log.d(TAG, "Size elements: $itemCount")
             val leader = leaders[position]
-
+            //Set current user color
+            if(leader.username == AppPreferences.username)
+                holder.layout.setBackgroundColor(Color.parseColor("#8C6A6868"))
+            else
+                holder.layout.setBackgroundColor(Color.parseColor("#009E9D9D"))
             holder.country.text = leader.country
             holder.score.text = leader.score.toString()
             holder.username.text = leader.username
@@ -62,6 +69,7 @@ class PlayersListAdapter(
 
     // recycler format
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val layout: ConstraintLayout = view.findViewById(R.id.leaderLayout)
         val username: TextView = view.username
         val imageView: ImageView = view.imageView
         val country: TextView = view.country

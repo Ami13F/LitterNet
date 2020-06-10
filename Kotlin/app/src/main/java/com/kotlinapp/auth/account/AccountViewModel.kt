@@ -114,12 +114,6 @@ class AccountViewModel(application: Application) : AndroidViewModel(application)
 
     fun saveAccount(user: User, player: Player) {
         viewModelScope.launch {
-            Log.v(TAG, "saveOrUpdateItem...")
-            Log.d(TAG,"name: ${player.avatar}")
-            Log.d(TAG,"name: ${player.country}")
-            Log.d(TAG,"age: ${player.score}")
-            Log.d(TAG,"id: ${player.idPlayer}")
-
             Log.v(TAG, "Create account...")
             when(val result =  AuthApi.createAccount(user)) {
                 is Result.Success -> {

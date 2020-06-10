@@ -19,7 +19,6 @@ class PlayerRepository (private val itemDao: ItemDao){
 
     suspend fun sortLeaders(): Result<Boolean> {
         return try {
-            //TODO : clear db
             Log.d(TAG,"Refreshing...")
             val usersServer = authService.getAllUsers().await()
             val items = PlayerApi.service.getPlayers().await()

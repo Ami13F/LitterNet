@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/leaderLayout"
     android:orientation="horizontal">
 
     <TextView
@@ -11,8 +12,10 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
+        android:gravity="center_horizontal"
         android:textAppearance="?attr/textAppearanceListItem"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_goneMarginLeft="5dp" />
 
     <com.google.android.material.card.MaterialCardView
@@ -39,6 +42,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
+        android:gravity="center_horizontal"
         android:layout_margin="@dimen/text_margin"
         android:textAppearance="?attr/textAppearanceListItem"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -49,9 +53,11 @@
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
+        android:gravity="center_horizontal"
         android:layout_margin="@dimen/text_margin"
         android:textAppearance="?attr/textAppearanceListItem"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/country" />
 
 

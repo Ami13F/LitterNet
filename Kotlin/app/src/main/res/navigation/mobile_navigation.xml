@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/item_edit_fragment">
+    app:startDestination="@+id/profile_fragment">
 
     <fragment
-        android:id="@+id/item_list_fragment"
+        android:id="@+id/leaderboard_fragment"
         android:name="com.kotlinapp.leaderboard.LeaderBoardFragment"
         android:label="@string/item_list"
-        tools:layout="@layout/item_list_fragment" />
+        tools:layout="@layout/leaderboard_fragment" />
 
     <fragment
         android:id="@+id/login_fragment"
@@ -18,7 +18,7 @@
         tools:layout="@layout/login_fragment" />
 
     <fragment
-        android:id="@+id/item_edit_fragment"
+        android:id="@+id/profile_fragment"
         android:name="com.kotlinapp.profile.ProfileFragment"
         android:label="@string/item_edit"
         tools:layout="@layout/profile_fragment" />

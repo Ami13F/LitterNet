@@ -32,7 +32,6 @@ import com.kotlinapp.utils.ImageUtils.REQUEST_CAMERA
 import com.kotlinapp.utils.ImageUtils.galleryIntent
 import com.kotlinapp.utils.Permissions
 import com.kotlinapp.utils.TAG
-import kotlinx.android.synthetic.main.create_account_fragment.*
 import kotlinx.android.synthetic.main.create_account_fragment.progress
 import kotlinx.android.synthetic.main.profile_fragment.*
 import java.io.IOException
@@ -273,7 +272,7 @@ class ProfileFragment : Fragment() {
                 e.printStackTrace()
             }
         }
-        avatarImage.setImageBitmap(bitmap)
+        avatarEdit.setImageBitmap(bitmap)
         setAvatar()
     }
 }

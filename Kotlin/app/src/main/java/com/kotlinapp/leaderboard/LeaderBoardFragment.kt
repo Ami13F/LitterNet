@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.kotlinapp.R
 import com.kotlinapp.utils.TAG
-import kotlinx.android.synthetic.main.item_list_fragment.*
+import kotlinx.android.synthetic.main.leaderboard_fragment.*
 
 
 class LeaderBoardFragment : Fragment() {
@@ -25,7 +25,7 @@ class LeaderBoardFragment : Fragment() {
         savedInstanceState: Bundle?
         ):View?{
         Log.v(TAG,"onCreateView")
-        return inflater.inflate(R.layout.item_list_fragment,container, false)
+        return inflater.inflate(R.layout.leaderboard_fragment,container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -48,7 +48,6 @@ class LeaderBoardFragment : Fragment() {
         itemListAdapter = PlayersListAdapter(this)
         item_list.adapter = itemListAdapter
         itemsModel = ViewModelProvider(this).get(LeaderboardViewModel::class.java)
-        //TODO: infinite scroll
         itemsModel.players.observe(viewLifecycleOwner, Observer { items ->
             Log.v(TAG, "update items")
             itemListAdapter.players = items

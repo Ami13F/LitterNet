@@ -2,13 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/item_list_fragment"
+        android:id="@+id/leaderboard_fragment"
         android:icon="@drawable/baseline_emoji_events_white_18dp"
         android:title="Leaderbord"
         android:tooltipText="Leaderboard" />
 
     <item
-        android:id="@+id/item_edit_fragment"
+        android:id="@+id/profile_fragment"
         android:icon="@drawable/baseline_person_white_18dp"
         android:title="Profile"
         android:tooltipText="Profile" />
