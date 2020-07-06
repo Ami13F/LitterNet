@@ -1,0 +1,4 @@
+data,taco_config/map_10.csv,train10.txt,test10.txt
+data10b,taco_config/map_10b.csv,train10b.txt,test10b.txt
+data10c,taco_config/map_10c.csv,train10c.txt,test10c.txt
+data8b,taco_config/map_8b.csv,train8b.txt,test8b.txt

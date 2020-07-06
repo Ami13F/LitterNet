@@ -11,6 +11,7 @@ import android.hardware.camera2.*
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -23,9 +24,9 @@ import android.view.TextureView.SurfaceTextureListener
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.kotlinapp.R
-import com.kotlinapp.utils.ui.AutoFitTextureView
 import com.kotlinapp.utils.Permissions
 import com.kotlinapp.utils.TAG
+import com.kotlinapp.utils.ui.AutoFitTextureView
 import java.util.*
 import java.util.concurrent.Semaphore
 import kotlin.math.max
@@ -454,7 +455,11 @@ class CameraFragment private constructor(
         if (null == textureView || null == previewSize || null == activity) {
             return
         }
-        val rotation = activity.windowManager.defaultDisplay.rotation
+        //If emulator
+        var rotation = activity.windowManager.defaultDisplay.rotation
+//        if (Build.MODEL.contains("SDK")){
+//            rotation = Surface.ROTATION_90
+//        }
         val matrix = Matrix()
         val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
         val bufferRect = RectF(

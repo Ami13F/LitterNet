@@ -28,7 +28,7 @@ class DetectorActivity :
     private val modelFileName = "tiny-prn.tflite"
     private val labelsFileName = "file:///android_asset/labels.txt"
 
-    private val minConfidence = 0.5f
+    private val minConfidence = 0.7f
     private val keepAspect = false
     private val previewInputSize = Size(640, 480)
     private val textSizeDip = 10f
